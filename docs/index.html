@@ -194,6 +194,27 @@
             margin: 1rem 0;
             border: 1px solid #334155;
             color: #cbd5e1;
+            white-space: pre;
+            line-height: 1.4;
+        }
+        
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        
+        /* Inline code styling */
+        code {
+            background: #1e293b;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85em;
+            color: #94a3b8;
+            border: 1px solid #334155;
         }
         
         .limitations {
@@ -334,7 +355,7 @@
             
             <div class="code-section">
                 <h3 style="color: #e2e8f0; margin-bottom: 1rem;">🚀 Quick Start</h3>
-                <div class="code-block"># Clone the repository
+                <pre class="code-block"><code># Clone the repository
 git clone https://github.com/dannycab/ytmoviepicker.git
 cd ytmoviepicker
 
@@ -346,9 +367,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Run the app
-python app.py</div>
+python app.py</code></pre>
                 <p style="color: #94a3b8;">Or use Docker:</p>
-                <div class="code-block">docker-compose up</div>
+                <pre class="code-block"><code>docker-compose up</code></pre>
             </div>
             
             <div class="limitations">
