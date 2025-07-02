@@ -3,7 +3,7 @@ load_dotenv()
 
 import re
 import os
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
 import sqlite3
 import random
 import threading
@@ -13,6 +13,12 @@ from datetime import datetime
 import time
 from flasgger import Swagger, swag_from
 import json
+
+# Authentication imports
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from werkzeug.security import check_password_hash, generate_password_hash
+from auth import User, UserManager
+from forms import LoginForm, RegistrationForm, ProfileForm, ChangePasswordForm
 
 
 # Database file path - unified logic for Docker and local development
@@ -200,26 +206,46 @@ swagger_template = {
 
 swagger = Swagger(app, config=swagger_config, template=swagger_template)
 
+# Flask app configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['WTF_CSRF_ENABLED'] = True
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Please log in to access this page.'
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Load user for Flask-Login"""
+    return User.get(user_id)
+
 # Database connection
 def get_db_connection():
     conn = sqlite3.connect(get_db_path())
     conn.row_factory = sqlite3.Row
     return conn
 
-# Fetch all movies
-def fetch_all_movies():
+# Fetch all movies (user-scoped)
+def fetch_all_movies(user_id=None):
     conn = get_db_connection()
-    movies = conn.execute('SELECT * FROM movies').fetchall()
+    if user_id:
+        movies = conn.execute('SELECT * FROM movies WHERE user_id = ?', (user_id,)).fetchall()
+    else:
+        # For admin or when no user specified, get all movies
+        movies = conn.execute('SELECT * FROM movies').fetchall()
     conn.close()
     return [dict(movie) for movie in movies]
 
-# Add a new movie
-def add_movie(title, url, verified=False):
+# Add a new movie (user-scoped)
+def add_movie(title, url, verified=False, user_id=None):
     conn = get_db_connection()
     cur = conn.cursor()
     last_verified = datetime.now().isoformat() if verified else None
-    cur.execute('INSERT INTO movies (title, url, verified, last_verified) VALUES (?, ?, ?, ?)', 
-                (title, url, int(verified), last_verified))
+    cur.execute('INSERT INTO movies (title, url, verified, last_verified, user_id) VALUES (?, ?, ?, ?, ?)', 
+                (title, url, int(verified), last_verified, user_id))
     conn.commit()
     movie_id = cur.lastrowid
     conn.close()
@@ -1173,8 +1199,120 @@ def import_from_search():
 
 # Missing Flask App Routes - need to be added after the existing code
 
+# Authentication Routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.verify_password(form.username.data, form.password.data)
+        if user:
+            login_user(user, remember=form.remember_me.data)
+            user.update_last_login()
+            flash(f'Welcome back, {user.display_name}!', 'success')
+            
+            # Redirect to next page or index
+            next_page = request.args.get('next')
+            if not next_page or urlparse(next_page).netloc != '':
+                next_page = url_for('index')
+            return redirect(next_page)
+        else:
+            flash('Invalid username or password', 'error')
+    
+    return render_template('auth/login.html', title='Sign In', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """User registration"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user, message = User.create(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data,
+            first_name=form.first_name.data,
+            last_name=form.last_name.data
+        )
+        
+        if user:
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash(f'Registration failed: {message}', 'error')
+    
+    return render_template('auth/register.html', title='Register', form=form)
+
+@app.route('/logout')
+def logout():
+    """User logout"""
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    """User profile page"""
+    return render_template('auth/profile.html', title='Profile')
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    """Edit user profile"""
+    form = ProfileForm(current_user.email)
+    if form.validate_on_submit():
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE users 
+            SET first_name = ?, last_name = ?, email = ?
+            WHERE id = ?
+        ''', (form.first_name.data, form.last_name.data, form.email.data, current_user.id))
+        conn.commit()
+        conn.close()
+        
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        form.first_name.data = current_user.first_name
+        form.last_name.data = current_user.last_name
+        form.email.data = current_user.email
+    
+    return render_template('auth/edit_profile.html', title='Edit Profile', form=form)
+
+@app.route('/profile/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """Change user password"""
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        # Verify current password
+        if not check_password_hash(current_user.password_hash, form.current_password.data):
+            flash('Current password is incorrect', 'error')
+        else:
+            # Update password
+            new_hash = generate_password_hash(form.new_password.data)
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', 
+                         (new_hash, current_user.id))
+            conn.commit()
+            conn.close()
+            
+            flash('Password changed successfully!', 'success')
+            return redirect(url_for('profile'))
+    
+    return render_template('auth/change_password.html', title='Change Password', form=form)
+
 # Routes
 @app.route('/')
+@login_required
 def index():
     return render_template('index.html')
 
