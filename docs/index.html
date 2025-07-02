@@ -275,6 +275,51 @@
             border-top: 1px solid #1e293b;
         }
         
+        .screenshots {
+            margin: 4rem 0;
+        }
+        
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .screenshot-item {
+            background: #1e293b;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .screenshot-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: #475569;
+        }
+        
+        .screenshot-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .screenshot-caption {
+            padding: 1rem;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .screenshot-caption h4 {
+            color: #f1f5f9;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -325,6 +370,70 @@
             <div class="section">
                 <h2>✨ What is this?</h2>
                 <p style="font-size: 1.1rem; color: #cbd5e1;">Paste YouTube movie links. Filter by genre. Click random. Sometimes it works. Sometimes it doesn't. If it breaks, open an issue and I'll vibe code a fix. No promises. No explanations. No PRs.</p>
+            </div>
+            
+            <div class="section screenshots">
+                <h2>📸 Screenshots</h2>
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/home-page.png" alt="Main Homepage" />
+                        <div class="screenshot-caption">
+                            <h4>Main Interface</h4>
+                            <p>Movie grid with genre filtering and random picker</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/main-page-search.png" alt="Movie Search" />
+                        <div class="screenshot-caption">
+                            <h4>Movie Search</h4>
+                            <p>Search functionality for finding movies</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/main-page-add-movie.png" alt="Add Movie Interface" />
+                        <div class="screenshot-caption">
+                            <h4>Add Movies</h4>
+                            <p>Simple URL-based movie addition interface</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/movie-detail-page.png" alt="Movie Details" />
+                        <div class="screenshot-caption">
+                            <h4>Movie Details</h4>
+                            <p>Rich metadata with OMDb integration and verification</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/genres-page.png" alt="Genres Overview" />
+                        <div class="screenshot-caption">
+                            <h4>Genre Categories</h4>
+                            <p>Browse movies by genre categories</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/genre-detail-page.png" alt="Genre Detail" />
+                        <div class="screenshot-caption">
+                            <h4>Genre Details</h4>
+                            <p>Detailed view of movies within a specific genre</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="../images/screenshots/admin-page.png" alt="Admin Dashboard" />
+                        <div class="screenshot-caption">
+                            <h4>Admin Dashboard</h4>
+                            <p>Statistics and management interface</p>
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #64748b; font-style: italic; margin-top: 2rem;">
+                    📸 Screenshots show the app in action. Some features may look different due to ongoing vibe coding updates.
+                </p>
             </div>
             
             <div class="features">
@@ -403,6 +512,43 @@ python app.py</code></pre>
                 <h2>🤝 Contributing</h2>
                 <p style="font-size: 1.1rem; color: #cbd5e1;"><strong>No pull requests.</strong></p>
                 <p style="color: #94a3b8;">If you want something, open an issue. I will respond with code only. No explanations. No reviews. No merges. Just pure, unfiltered vibe coding until it works (or doesn't).</p>
+            </div>
+            
+            <div class="screenshots">
+                <h2>📸 Screenshots</h2>
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <img src="screenshot1.png" alt="Screenshot 1">
+                        <div class="screenshot-caption">
+                            <h4>Easy Movie Adding</h4>
+                            <p>Paste YouTube links or search for movies.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="screenshot2.png" alt="Screenshot 2">
+                        <div class="screenshot-caption">
+                            <h4>Genre Filtering</h4>
+                            <p>Organize movies by your favorite genres.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="screenshot3.png" alt="Screenshot 3">
+                        <div class="screenshot-caption">
+                            <h4>Random Movie Picker</h4>
+                            <p>Let the app decide your next movie.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <img src="screenshot4.png" alt="Screenshot 4">
+                        <div class="screenshot-caption">
+                            <h4>Admin Dashboard</h4>
+                            <p>Manage your movie collection with ease.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
