@@ -14,7 +14,47 @@ Visit `/api/docs/` for interactive Swagger documentation with live testing capab
 
 ## 🔐 Authentication
 
-Currently, the API does not require authentication. All endpoints are publicly accessible.
+**Important**: As of version 2.0, all API endpoints require user authentication. The API uses session-based authentication with Flask-Login.
+
+### Authentication Methods
+
+#### 1. Web Session Authentication
+- Login via `/login` endpoint with username/password
+- Session cookies are automatically handled by the browser
+- Recommended for web applications
+
+#### 2. API Usage After Login
+- All API endpoints require an authenticated session
+- Unauthenticated requests will return `401 Unauthorized`
+- Each user can only access their own movies and data
+
+### User Endpoints
+
+#### Login
+**POST** `/login`
+```json
+{
+  "username": "your_username",
+  "password": "your_password"
+}
+```
+
+#### Register
+**POST** `/register`
+```json
+{
+  "username": "new_username",
+  "email": "user@example.com",
+  "password": "secure_password",
+  "first_name": "First",
+  "last_name": "Last"
+}
+```
+
+#### Logout
+**POST** `/logout`
+
+> **Note**: All movie-related API endpoints are now user-scoped. Users can only access and modify their own movies.
 
 ## 📊 Response Format
 

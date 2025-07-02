@@ -21,6 +21,23 @@ This guide provides comprehensive installation instructions for YouTube Movie Pi
 - **pip**: Python package manager
 - **Git**: For cloning the repository
 
+## 🔐 User Authentication Setup
+
+**New in v2.0**: YouTube Movie Picker now includes multi-user support with authentication.
+
+### First Time Setup
+1. **Database Migration**: The first run will automatically migrate the database to support users
+2. **Default Admin User**: An admin account is created automatically:
+   - **Username**: `admin`
+   - **Password**: `admin123`
+   - **⚠️ IMPORTANT**: Change this password immediately after first login!
+
+### User Management
+- **Registration**: New users can register at `/register`
+- **Login**: Access the app at `/login`
+- **Profile**: Users can manage their profile at `/profile`
+- **Multi-User**: Each user maintains their own private movie collection
+
 ## 🐳 Docker Installation (Recommended)
 
 Docker provides the easiest and most reliable deployment method.

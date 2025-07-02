@@ -63,11 +63,14 @@ If you want something, open an issue. I will respond with code only. No explanat
 
 ## Features
 
+- [x] **User Authentication**: Multi-user support with secure login/registration
+- [x] **Personal Movie Lists**: Each user maintains their own movie collection
 - [x] Add movies by YouTube URL or search
 - [x] Genre filtering and detail pages
 - [x] OMDb metadata (year, rating, poster, etc)
 - [x] Age restriction and verification
 - [x] Admin dashboard for stats and cache management
+- [x] **Profile Management**: Edit profile, change password, view account info
 - [x] Responsive, clean UI (mobile-friendly)
 - [x] Random movie picker
 - [x] API endpoints for everything
@@ -89,6 +92,17 @@ See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
 ## 📖 Usage
 
+### Getting Started
+1. **First Time Setup**: Run the app and visit `/register` to create your user account
+2. **Login**: Access the app at `/login` with your credentials
+3. **Default Admin**: An admin user is created automatically (username: `admin`, password: `admin123` - change this immediately!)
+
+### User Authentication
+- **Registration**: Create a new account with username, email, and password
+- **Login/Logout**: Secure session management with Flask-Login
+- **Profile Management**: Edit your profile information and change password
+- **Multi-User Support**: Each user has their own private movie collection
+
 ### Adding Movies
 1. Click the "➕ Add Movie" button on the main page
 2. Paste a YouTube URL - the title will be fetched automatically
@@ -109,11 +123,13 @@ Each movie displays:
 
 ### Administration
 Access the admin panel at `/admin` to:
-- View statistics and analytics
-- Verify all movie URLs
-- Check for age-restricted content
+- View your personal movie statistics and analytics
+- Verify all your movie URLs
+- Check for age-restricted content in your collection
 - Manage cached movie information
-- Monitor system health
+- Monitor your account activity
+
+> **Note**: Each user only sees their own movies and statistics. Admin users have additional system-wide privileges.
 
 ## 🔧 Configuration
 
@@ -124,6 +140,7 @@ Access the admin panel at `/admin` to:
 | `HOST` | `0.0.0.0` | Server bind address |
 | `PORT` | `5000` | Server port |
 | `FLASK_DEBUG` | `False` | Enable debug mode |
+| `FLASK_SECRET_KEY` | Auto-generated | Secret key for session management and CSRF protection |
 | `OMDB_API_KEY` | None | OMDb API key for movie metadata |
 
 ### Getting OMDb API Key (Optional)
@@ -139,6 +156,9 @@ Without an API key, the app still works but with limited movie metadata.
 ```
 YTMoviePicker/
 ├── app.py                 # Main Flask application
+├── auth.py               # User authentication and management
+├── forms.py              # WTForms for user input validation
+├── migrate_users.py      # Database migration for user system
 ├── init_db.py            # Database initialization
 ├── docker-compose.yml    # Docker Compose configuration
 ├── Dockerfile            # Docker container definition
@@ -147,9 +167,15 @@ YTMoviePicker/
 │   ├── index.html        # Main movie grid page
 │   ├── movie_detail.html # Individual movie page
 │   ├── admin.html        # Admin dashboard
-│   └── genres.html       # Genre browsing page
+│   ├── genres.html       # Genre browsing page
+│   └── auth/             # Authentication templates
+│       ├── login.html    # User login page
+│       ├── register.html # User registration page
+│       ├── profile.html  # User profile page
+│       ├── edit_profile.html # Profile editing
+│       └── change_password.html # Password change
 ├── data/                 # Database storage
-│   └── movies.db         # SQLite database
+│   └── movies.db         # SQLite database (with users table)
 └── docs/                 # Documentation
     ├── README.md         # This file
     ├── INSTALL.md        # Installation guide
@@ -158,8 +184,10 @@ YTMoviePicker/
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Python 3.12, Flask
-- **Database**: SQLite with automatic migrations
+- **Backend**: Python 3.12, Flask, Flask-Login, Flask-WTF
+- **Database**: SQLite with automatic migrations and user management
+- **Authentication**: Secure password hashing with Werkzeug
+- **Forms**: WTForms for input validation and CSRF protection
 - **Frontend**: HTML5, TailwindCSS, Vanilla JavaScript
 - **API Documentation**: Swagger/Flasgger
 - **Containerization**: Docker & Docker Compose
@@ -186,13 +214,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Roadmap
 
-- [ ] User authentication and personal movie lists
+- [x] ~~User authentication and personal movie lists~~ ✅ **COMPLETED**
 - [ ] Movie ratings and reviews
 - [ ] Advanced search and filtering
 - [ ] Movie recommendations
 - [ ] Export/import functionality
 - [ ] Multiple database backends
 - [ ] Mobile app companion
+- [ ] Social features (sharing movie lists)
+- [ ] Movie watch history and tracking
 
 ---
 
