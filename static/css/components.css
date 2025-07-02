@@ -1,0 +1,445 @@
+/* Component-specific styles for YouTube Movie Picker */
+
+/* Hamburger Menu Component */
+.hamburger-menu {
+  position: relative;
+}
+
+.hamburger-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.hamburger-button:hover {
+  background-color: #2563eb;
+}
+
+.hamburger-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  z-index: 50;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+
+.hamburger-dropdown.show {
+  display: block;
+}
+
+/* Genre Filter Component */
+.genre-filter-container {
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.genre-filter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.genre-filter {
+  background-color: #374151;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.genre-filter:hover {
+  background-color: #4b5563;
+}
+
+.genre-filter.active {
+  background-color: #3b82f6;
+}
+
+.genre-filter.active:hover {
+  background-color: #2563eb;
+}
+
+/* Sort Controls Component */
+.sort-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sort-btn {
+  background-color: #374151;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.sort-btn:hover {
+  background-color: #4b5563;
+}
+
+.sort-btn.active {
+  background-color: #3b82f6;
+}
+
+.sort-btn.active:hover {
+  background-color: #2563eb;
+}
+
+.sort-order-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #374151;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sort-order-toggle:hover {
+  background-color: #4b5563;
+}
+
+/* Movie Grid Component */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .movie-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .movie-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .movie-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1536px) {
+  .movie-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Navigation Component */
+.app-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.nav-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: white;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.nav-button-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.nav-button-primary:hover {
+  background-color: #2563eb;
+}
+
+.nav-button-secondary {
+  background-color: #374151;
+  color: white;
+}
+
+.nav-button-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* Form Component */
+.form-container {
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+}
+
+.form-close-button {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.form-close-button:hover {
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Video Player Component */
+.video-player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.video-player:hover {
+  transform: scale(1.02);
+}
+
+.video-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s;
+}
+
+.video-player:hover .video-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.video-play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #dc2626;
+  border-radius: 50%;
+  padding: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.video-player:hover .video-play-button {
+  background-color: #b91c1c;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.video-platform-logo {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  color: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* Status Badge Component */
+.status-badges {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.status-badge-verified {
+  background-color: #10b981;
+  color: white;
+}
+
+.status-badge-age-restricted {
+  background-color: #ef4444;
+  color: white;
+}
+
+.status-badge-age-checked {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Rating Badge Component */
+.rating-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background-color: #f59e0b;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+/* Loading Component */
+.loading-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-text {
+  color: #9ca3af;
+  margin-top: 1rem;
+}
+
+/* Error Component */
+.error-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.error-subtext {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Notification styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  max-width: 400px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.notification-success {
+  background-color: #10b981;
+  border: 1px solid #059669;
+}
+
+.notification-error {
+  background-color: #ef4444;
+  border: 1px solid #dc2626;
+}
+
+.notification-warning {
+  background-color: #f59e0b;
+  border: 1px solid #d97706;
+}
+
+.notification-info {
+  background-color: #3b82f6;
+  border: 1px solid #2563eb;
+}
+
+/* Mobile adjustments for notifications */
+@media (max-width: 640px) {
+  .notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
+
+/* Video aspect ratio utility */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}

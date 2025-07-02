@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎭 {{ genre|title }} Movies - Movie Picker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Static CSS Files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+</head>
+    <!-- All mobile/desktop CSS moved to static files -->
+<body class="bg-gray-900 text-gray-100 p-6 mobile-container">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="mobile-title desktop-large-text text-4xl font-bold" id="genreTitle">🎭 <span id="genreHeaderTitle">{{ genre|title }}</span> Movies</h1>
+      <div class="mobile-nav-flex flex gap-4">
+        <a href="/genres" class="mobile-btn inline-flex items-center px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition duration-200">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Genres
+        </a>
+        <a href="/" class="mobile-btn inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          Home
+        </a>
+      </div>
+    </div>
+
+    <!-- Sort Controls -->
+    <div class="bg-gray-800 rounded-lg p-6 mobile-card-padding mb-8 relative">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="mobile-large-text desktop-large-text text-lg font-semibold text-white">Sort Options</h2>
+        
+        <!-- Mobile Hamburger Button -->
+        <button id="mobileSortToggle" class="mobile-sort-hamburger bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition duration-200 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <span id="currentSortText">Title (A-Z)</span>
+        </button>
+      </div>
+      
+      <!-- Desktop Sort Controls -->
+      <div class="desktop-sort-controls flex flex-wrap items-center justify-between gap-4" id="desktopSortControls">
+        <div class="flex items-center gap-4">
+          <span class="mobile-medium-text desktop-medium-text text-lg font-semibold text-white">Sort by:</span>
+          <div class="flex gap-2">
+            <button id="sortTitle" class="sort-btn sort-option active bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition duration-200" data-sort="title">
+              Title (A-Z)
+            </button>
+            <button id="sortYear" class="sort-btn sort-option bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200" data-sort="year">
+              Year
+            </button>
+            <button id="sortRating" class="sort-btn sort-option bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200" data-sort="rating">
+              Rating
+            </button>
+            <button id="sortAddDate" class="sort-btn sort-option bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200" data-sort="add_date">
+              Recently Added
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="toggleOrder" class="bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200 flex items-center gap-2">
+            <svg id="orderIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m0 0l-3-3m3 3l-3 3m3-3h9"></path>
+            </svg>
+            <span id="orderText">Ascending</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mobile Sort Controls (Dropdown) -->
+      <div class="mobile-sort-container" id="mobileSortContainer">
+        <div class="mobile-sort-controls flex flex-col gap-3">
+          <div class="border-b border-gray-600 pb-3">
+            <h3 class="mobile-medium-text text-sm font-semibold text-gray-300 mb-2">Sort By:</h3>
+            <button class="mobile-sort-btn sort-btn sort-option active bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition duration-200 mb-2" data-sort="title">
+              Title (A-Z)
+            </button>
+            <button class="mobile-sort-btn sort-btn sort-option bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200 mb-2" data-sort="year">
+              Year
+            </button>
+            <button class="mobile-sort-btn sort-btn sort-option bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200 mb-2" data-sort="rating">
+              Rating
+            </button>
+            <button class="mobile-sort-btn sort-btn sort-option bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200" data-sort="add_date">
+              Recently Added
+            </button>
+          </div>
+          <div>
+            <h3 class="mobile-medium-text text-sm font-semibold text-gray-300 mb-2">Order:</h3>
+            <button id="mobileToggleOrder" class="order-btn bg-gray-700 text-white px-3 py-2 rounded-md hover:bg-gray-600 transition duration-200 flex items-center justify-center gap-2 w-full">
+              <svg id="mobileOrderIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m0 0l-3-3m3 3l-3 3m3-3h9"></path>
+              </svg>
+              <span id="mobileOrderText">Ascending</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <p class="mobile-medium-text desktop-medium-text text-gray-400">
+          <span id="movieCount">0</span> movies found in <span id="currentGenre">this genre</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Random Movie Button -->
+    <div class="mb-8 text-center">
+      <a href="/random" class="mobile-btn desktop-large-text inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-200 text-lg font-semibold">
+        🎲 Random Movie
+      </a>
+    </div>
+
+    <!-- Movies Grid -->
+    <div id="movieGrid" class="movie-grid mobile-movie-grid mb-8">
+      <!-- Movies will be dynamically loaded here by JS -->
+    </div>
+    <!-- Load More Button -->
+    <div class="text-center">
+      <button id="loadMoreBtn" class="mobile-secondary-btn btn-blue px-6 py-3 rounded-lg transition duration-200 hidden">
+        Load More
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 pt-8 border-t border-gray-700">
+      <div class="text-center text-gray-400 text-sm">
+        <p>Made with ❤️ in Michigan</p>
+      </div>
+    </footer>
+  </div>
+
+    <!-- All page JS moved to static/js/genre-detail.js -->
+    <!-- Static JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/genre-detail.js') }}"></script>
+</body>
+</html>

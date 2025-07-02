@@ -1,0 +1,226 @@
+/* Mobile-responsive styles for YouTube Movie Picker */
+
+/* Mobile breakpoint: screens smaller than 1024px */
+@media (max-width: 1023px) {
+  /* Typography - larger text for better mobile readability */
+  .mobile-title {
+    font-size: 2rem !important;
+    line-height: 2.25rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .mobile-large-text {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+  
+  .mobile-medium-text {
+    font-size: 1rem !important;
+    line-height: 1.375rem !important;
+  }
+  
+  .mobile-small-text {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  /* Container and spacing */
+  .mobile-container {
+    padding: 1rem !important;
+  }
+  
+  .mobile-card-padding {
+    padding: 1.5rem !important;
+  }
+  
+  .mobile-space-y {
+    gap: 1.5rem !important;
+  }
+
+  /* Button styles */
+  .mobile-btn {
+    width: 100% !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+    text-align: center !important;
+  }
+  
+  .mobile-btn-small {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    margin-bottom: 0.5rem !important;
+    text-align: center !important;
+  }
+  
+  /* Primary action buttons - larger and full-width on mobile */
+  .mobile-primary-btn {
+    width: 100% !important;
+    padding: 1rem 2rem !important;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.75rem !important;
+    text-align: center !important;
+  }
+  
+  /* Secondary buttons - larger on mobile */
+  .mobile-secondary-btn {
+    width: 100% !important;
+    padding: 0.875rem 1.5rem !important;
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+    text-align: center !important;
+  }
+  
+  /* Force flex direction column on mobile for button groups */
+  .mobile-flex-col {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Better mobile spacing for sections */
+  .mobile-section {
+    margin-bottom: 2rem !important;
+  }
+
+  /* Layout adjustments */
+  .mobile-single-column {
+    display: block !important;
+  }
+  
+  .mobile-single-column > * {
+    margin-bottom: 2rem !important;
+  }
+  
+  .mobile-nav-flex {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .mobile-nav-flex > * {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* Movie grids */
+  .mobile-movie-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .mobile-movie-card img {
+    height: 12rem !important;
+    width: 100% !important;
+  }
+
+  /* Mobile-specific info display */
+  .mobile-info-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid #374151 !important;
+  }
+  
+  .mobile-info-row:last-child {
+    border-bottom: none !important;
+  }
+  
+  .mobile-info-label {
+    font-size: 1rem !important;
+    color: #9ca3af !important;
+    font-weight: 500 !important;
+    min-width: 4rem !important;
+  }
+  
+  .mobile-info-value {
+    font-size: 1rem !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-align: right !important;
+    flex: 1 !important;
+    margin-left: 1rem !important;
+  }
+  
+  .mobile-plot-text {
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    color: white !important;
+    margin-top: 0.75rem !important;
+  }
+
+  /* Hamburger menus for mobile */
+  .mobile-genre-hamburger,
+  .mobile-sort-hamburger {
+    display: block !important;
+  }
+  
+  .mobile-genre-filters-container,
+  .mobile-sort-container {
+    display: none;
+  }
+  
+  .mobile-genre-filters-container.show,
+  .mobile-sort-container.show {
+    display: block !important;
+  }
+  
+  .mobile-genre-filters,
+  .mobile-sort-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .mobile-genre-filters .genre-filter,
+  .mobile-sort-controls .sort-btn {
+    text-align: center;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .mobile-sort-controls .order-btn {
+    text-align: center;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  /* Hide desktop elements on mobile */
+  .desktop-genre-filters,
+  .desktop-sort-controls {
+    display: none !important;
+  }
+}
+
+/* Desktop styles for larger screens */
+@media (min-width: 1024px) {
+  /* Ensure mobile-specific elements are hidden on desktop */
+  .mobile-genre-hamburger,
+  .mobile-sort-hamburger {
+    display: none !important;
+  }
+  
+  .mobile-genre-filters-container,
+  .mobile-sort-container {
+    display: none !important;
+  }
+  
+  .desktop-genre-filters,
+  .desktop-sort-controls {
+    display: flex !important;
+  }
+
+  /* Enhanced desktop typography */
+  .desktop-large-text {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+  
+  .desktop-medium-text {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+}

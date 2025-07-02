@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🛠️ Admin Settings - Movie Picker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Static CSS Files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+</head>
+<body class="bg-gray-900 text-gray-100 p-6 mobile-container">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-4xl font-bold">🛠️ Admin Settings</h1>
+      <div class="flex gap-2">
+        <a href="/api/docs/" class="mobile-btn btn-blue">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          API Docs
+        </a>
+        <a href="/" class="mobile-btn btn-gray">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Movies
+        </a>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid md:grid-cols-5 gap-6 mb-8">
+      <div class="bg-gray-800 rounded-lg p-6">
+        <div class="text-3xl font-bold text-blue-400" id="totalMovies">-</div>
+        <div class="text-sm text-gray-400">Total Movies</div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-6">
+        <div class="text-3xl font-bold text-green-400" id="verifiedMovies">-</div>
+        <div class="text-sm text-gray-400">Verified</div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-6">
+        <div class="text-3xl font-bold text-red-400" id="ageRestrictedMovies">-</div>
+        <div class="text-sm text-gray-400">Age Restricted</div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-6">
+        <div class="text-3xl font-bold text-yellow-400" id="unverifiedMovies">-</div>
+        <div class="text-sm text-gray-400">Unverified</div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-6">
+        <div class="text-3xl font-bold text-purple-400" id="cacheCountMain">-</div>
+        <div class="text-sm text-gray-400">Cached Info</div>
+      </div>
+    </div>
+
+    <!-- Management Actions -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-8">
+      <h2 class="text-2xl font-semibold text-white mb-6">Management Actions</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        
+        <!-- Verification Section -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-300">🔍 URL Verification</h3>
+          <p class="text-sm text-gray-400">Check if YouTube URLs are still working and accessible.</p>
+          <button id="verifyAllBtn" class="btn btn-purple btn-block">
+            🔄 Verify All Movies
+          </button>
+          <div id="verificationStatus" class="text-sm text-gray-400 hidden">
+            <div class="flex items-center">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500 mr-2"></div>
+              Verification in progress...
+            </div>
+          </div>
+        </div>
+
+        <!-- Age Restriction Section -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-300">🔞 Age Restriction Check</h3>
+          <p class="text-sm text-gray-400">Scan for age-restricted content that may not be accessible to all users.</p>
+          <button id="checkAgeRestrictionsBtn" class="btn btn-warning btn-block">
+            🛡️ Check Age Restrictions
+          </button>
+          <div id="ageCheckStatus" class="text-sm text-gray-400 hidden">
+            <div class="flex items-center">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
+              Checking age restrictions...
+            </div>
+          </div>
+        </div>
+
+        <!-- Cache Management Section -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-300">💾 Cache Management</h3>
+          <p class="text-sm text-gray-400">Manage cached movie information from OMDb API.</p>
+          <div class="flex gap-2">
+            <button id="clearAllCacheBtn" class="btn btn-danger btn-block">
+              🗑️ Clear All Cache
+            </button>
+            <button id="refreshAllCacheBtn" class="btn btn-blue btn-block">
+              🔄 Refresh All
+            </button>
+          </div>
+        </div>
+
+        <!-- Database Stats -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-300">📊 Database Info</h3>
+          <p class="text-sm text-gray-400">Database size and cache statistics.</p>
+          <div class="text-sm space-y-1">
+            <div>Cache entries: <span id="cacheCount" class="text-blue-400">-</span></div>
+            <div>Cache hit rate: <span id="cacheHitRate" class="text-green-400">-</span></div>
+            <div>Oldest cache: <span id="oldestCache" class="text-yellow-400">-</span></div>
+            <div>Last verification: <span id="lastVerification" class="text-green-400">-</span></div>
+            <div>Last age check: <span id="lastAgeCheck" class="text-orange-400">-</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity / Errors -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-8">
+      <h2 class="text-2xl font-semibold text-white mb-6">📋 Recent Activity & Errors</h2>
+      <div id="activityLog" class="space-y-2 max-h-96 overflow-y-auto">
+        <div class="text-gray-400 text-sm">No recent activity</div>
+      </div>
+    </div>
+
+    <!-- Status Messages -->
+    <div id="statusMessage" class="hidden"></div>
+
+    <!-- Footer -->
+    <footer class="mt-12 pt-8 border-t border-gray-700">
+      <div class="text-center text-gray-400 text-sm">
+        <p>Made with ❤️ in Michigan</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Static JavaScript Files -->
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

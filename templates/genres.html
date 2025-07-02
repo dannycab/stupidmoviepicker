@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎭 Movies by Genre - Movie Picker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Static CSS Files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+</head>
+<body class="bg-gray-900 text-gray-100 p-6 mobile-container">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-4xl font-bold">🎭 Movies by Genre</h1>
+      <div class="flex gap-4">
+        <a href="/" class="mobile-btn btn-gray inline-flex items-center px-4 py-2 rounded-md transition duration-200 text-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Movies
+        </a>
+      </div>
+    </div>
+
+    <!-- Genre Filter -->
+    <div class="genre-filter-container relative">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-white">Filter by Genre</h2>
+        
+        <!-- Mobile Hamburger Button -->
+        <button id="mobileGenreToggle" class="hamburger-button mobile-genre-hamburger">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <span id="currentGenreText">All Genres</span>
+        </button>
+      </div>
+      
+      <!-- Desktop Genre Filters -->
+      <div class="desktop-genre-filters flex flex-wrap gap-2" id="desktopGenreFilters">
+        <button class="genre-filter active btn-blue px-3 py-2 rounded-md transition duration-200" data-genre="all">
+          All Genres
+        </button>
+        <!-- Genre buttons will be populated dynamically -->
+      </div>
+      
+      <!-- Mobile Genre Filters (Dropdown) -->
+      <div class="hamburger-dropdown mobile-genre-filters-container" id="mobileGenreFilters">
+        <div class="mobile-genre-filters flex flex-col gap-2">
+          <button class="genre-filter active btn-blue px-3 py-2 rounded-md transition duration-200" data-genre="all" data-value="all">
+            All Genres
+          </button>
+          <!-- Genre buttons will be populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Movies by Genre -->
+    <div id="genreContent">
+      <!-- Loading state -->
+      <div class="text-center py-8">
+        <div class="loading-spinner mb-4"></div>
+        <p class="text-gray-400">Loading movies by genre...</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Made with ❤️ in Michigan</p>
+    </footer>
+  </div>
+
+  <!-- Static JavaScript Files -->
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/genres.js') }}"></script>
+</body>
+</html>

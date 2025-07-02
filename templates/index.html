@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎬 Movie Grid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Static CSS Files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+</head>
+<body class="bg-gray-900 text-gray-100 p-6 mobile-container">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold mb-6">🎬 YouTube Movie Picker</h1>
+      
+      <!-- Primary Actions -->
+      <div class="mobile-flex-col flex flex-col sm:flex-row justify-center gap-4 mb-6 mobile-section">
+        <a href="/random" class="mobile-primary-btn btn-red px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center">
+          🎲 Watch Random Movie
+        </a>
+        <a href="/genres" class="mobile-primary-btn btn-purple px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center">
+          🎭 Browse by Genre
+        </a>
+        <button id="searchMovieToggle" class="mobile-primary-btn btn-green px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg">
+          🔍 Search YouTube
+        </button>
+      </div>
+      
+      <!-- Secondary Actions -->
+      <div class="mobile-flex-col flex flex-col sm:flex-row justify-center gap-3 mobile-section">
+        <button id="addMovieToggle" class="mobile-secondary-btn btn-blue px-4 py-2 rounded-md transition duration-200 text-sm">
+          ➕ Add Movie
+        </button>
+        <a href="/admin" class="mobile-secondary-btn btn-gray px-4 py-2 rounded-md transition duration-200 text-sm text-center">
+          ⚙️ Admin
+        </a>
+      </div>
+    </div>
+
+    <!-- Add Movie Form (Collapsible) -->
+    <div id="addMovieSection" class="collapsible-section hidden">
+      <div class="section-header">
+        <h2 class="text-2xl font-semibold text-white">Add New Movie</h2>
+        <button id="closeAddForm" class="close-button">✕</button>
+      </div>
+      <form id="addMovieForm" class="space-y-4">
+        <div class="form-group">
+          <label for="movieUrl" class="form-label">YouTube URL</label>
+          <input type="url" id="movieUrl" name="url" required class="form-input"
+                 placeholder="https://www.youtube.com/watch?v=...">
+          <p class="form-help-text">Paste a YouTube URL and the title will be fetched automatically</p>
+        </div>
+        <div class="form-group">
+          <label for="movieTitle" class="form-label">Movie Title</label>
+          <input type="text" id="movieTitle" name="title" required class="form-input"
+                 placeholder="Title will be fetched automatically..." readonly>
+          <p class="form-help-text">You can edit this title if needed</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="submit" class="mobile-secondary-btn btn-blue px-6 py-2 rounded-md transition duration-200">
+            Add Movie
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- YouTube Search Form (Collapsible) -->
+    <div id="searchMovieSection" class="collapsible-section hidden">
+      <div class="section-header">
+        <h2 class="text-2xl font-semibold text-white">🔍 Search YouTube Movies</h2>
+        <button id="closeSearchForm" class="close-button">✕</button>
+      </div>
+      <form id="searchMovieForm" class="space-y-4">
+        <div class="form-group">
+          <label for="searchQuery" class="form-label">Movie Title or Keywords</label>
+          <input type="text" id="searchQuery" name="query" required class="form-input"
+                 placeholder="e.g., The Matrix 1999, Inception 2010...">
+          <p class="form-help-text">Search for movies on YouTube</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="submit" class="mobile-secondary-btn btn-green px-6 py-2 rounded-md transition duration-200">
+            🔍 Search YouTube
+          </button>
+        </div>
+      </form>
+      <div id="searchResults" class="mt-6 hidden">
+        <h3 class="text-lg font-semibold text-white mb-4">Search Results</h3>
+        <div id="searchResultsGrid" class="search-results-grid">
+          <!-- Search results will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Movie Grid -->
+    <div id="movieGrid" class="movie-grid mobile-movie-grid mb-8">
+      <!-- Movies will be loaded here dynamically -->
+    </div>
+
+    <!-- Load More Button -->
+    <div class="text-center">
+      <button id="loadMoreBtn" class="mobile-secondary-btn btn-blue px-6 py-3 rounded-lg transition duration-200 hidden">
+        Load More
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Made with ❤️ in Michigan</p>
+    </footer>
+  </div>
+
+  <!-- Static JavaScript Files -->
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>

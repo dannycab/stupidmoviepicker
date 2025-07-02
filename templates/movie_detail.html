@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ movie.title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .aspect-video {
+      aspect-ratio: 16 / 9;
+    }
+    
+    /* Mobile-first responsive design */
+    @media (max-width: 1023px) {
+      /* Make all text larger on mobile */
+      .mobile-title {
+        font-size: 2rem !important;
+        line-height: 2.25rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .mobile-large-text {
+        font-size: 1.125rem !important;
+        line-height: 1.5rem !important;
+      }
+      
+      .mobile-medium-text {
+        font-size: 1rem !important;
+        line-height: 1.375rem !important;
+      }
+      
+      .mobile-small-text {
+        font-size: 0.875rem !important;
+        line-height: 1.25rem !important;
+      }
+      
+      .mobile-container {
+        padding: 1rem !important;
+      }
+      
+      .mobile-card-padding {
+        padding: 1.5rem !important;
+      }
+      
+      .mobile-space-y {
+        gap: 1.5rem !important;
+      }
+      
+      .mobile-btn {
+        padding: 1rem 1.5rem !important;
+        font-size: 1rem !important;
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .mobile-btn-small {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      /* Force single column layout on mobile */
+      .mobile-single-column {
+        display: block !important;
+      }
+      
+      .mobile-single-column > * {
+        margin-bottom: 2rem !important;
+      }
+      
+      /* Make info sections more readable on mobile */
+      .mobile-info-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        padding: 0.75rem 0 !important;
+        border-bottom: 1px solid #374151 !important;
+      }
+      
+      .mobile-info-row:last-child {
+        border-bottom: none !important;
+      }
+      
+      .mobile-info-label {
+        font-size: 1rem !important;
+        color: #9ca3af !important;
+        font-weight: 500 !important;
+        min-width: 4rem !important;
+      }
+      
+      .mobile-info-value {
+        font-size: 1rem !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-align: right !important;
+        flex: 1 !important;
+        margin-left: 1rem !important;
+      }
+      
+      .mobile-plot-text {
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+        color: white !important;
+        margin-top: 0.75rem !important;
+      }
+      
+      /* Better mobile navigation */
+      .mobile-nav-flex {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+      }
+      
+      .mobile-nav-flex > * {
+        width: 100% !important;
+        text-align: center !important;
+      }
+    }
+    
+    /* Desktop improvements */
+    @media (min-width: 1024px) {
+      .desktop-large-text {
+        font-size: 1.25rem !important;
+        line-height: 1.75rem !important;
+      }
+      
+      .desktop-medium-text {
+        font-size: 1.125rem !important;
+        line-height: 1.5rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 p-6 mobile-container">
+  <div class="max-w-4xl mx-auto space-y-6 mobile-space-y">
+    <!-- Editable Movie Title and Menu (single row) -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div class="flex-1 flex items-center gap-3">
+        <div id="titleDisplay" class="inline-block">
+          <h1 class="mobile-title desktop-large-text text-3xl font-bold cursor-pointer hover:bg-gray-800 px-2 py-1 rounded transition duration-200 group" 
+              id="movieTitle" 
+              title="Click to edit title"
+              onclick="enableTitleEdit()">
+            {{ movie.title }}
+            <span class="text-lg opacity-50 group-hover:opacity-100 ml-2">✏️</span>
+          </h1>
+        </div>
+        <div id="titleEdit" class="hidden">
+          <input type="text" 
+                 id="titleInput" 
+                 class="mobile-title desktop-large-text text-3xl font-bold bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 w-full max-w-2xl"
+                 value="{{ movie.title }}"
+                 onkeypress="handleTitleKeypress(event)"
+                 onblur="saveTitleEdit()">
+          <div class="mt-2 space-x-2">
+            <button onclick="saveTitleEdit()" class="mobile-btn-small px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+              ✅ Save
+            </button>
+            <button onclick="cancelTitleEdit()" class="mobile-btn-small px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">
+              ❌ Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-nav-flex flex gap-4">
+        <a href="/genres" class="mobile-btn inline-flex items-center px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition duration-200">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Genres
+        </a>
+        <a href="/" class="mobile-btn inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          Home
+        </a>
+      </div>
+    </div>
+    
+    <!-- Main Movie Card -->
+    <div class="bg-gray-800 rounded-xl shadow-xl overflow-hidden">
+      <!-- Movie Header with Thumbnail and Basic Info -->
+      <div class="mobile-single-column grid lg:grid-cols-2 gap-6 p-6 mobile-card-padding">
+        <!-- Left: Video Thumbnail -->
+        <div class="space-y-4 mobile-space-y">
+          <div class="aspect-video w-full relative rounded-lg overflow-hidden group cursor-pointer" onclick="window.open('{{ movie.url }}', '_blank')">>
+            <img 
+              src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg" 
+              alt="{{ movie.title }} Thumbnail"
+              class="w-full h-full object-cover"
+              onerror="this.src='https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg'"
+            >
+            
+            <!-- Dark overlay on hover -->
+            <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all duration-200"></div>
+            
+            <!-- Play Button -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="bg-red-600 rounded-full p-4 group-hover:bg-red-700 transition-all duration-200 shadow-lg group-hover:scale-110">
+                <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+            </div>
+            
+            <!-- YouTube Logo -->
+            <div class="absolute top-4 right-4">
+              <svg class="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </div>
+            
+            <!-- Verification Status Overlay -->
+            <div class="absolute bottom-4 left-4">
+              {% if movie.verified %}
+                <span class="mobile-medium-text desktop-medium-text inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-600 text-white">
+                  ✅ Verified
+                </span>
+              {% else %}
+                <span class="mobile-medium-text desktop-medium-text inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-600 text-white">
+                  ⚠️ Unverified
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex flex-col gap-3">
+            <!-- Watch Button -->
+            <a href="{{ movie.url }}" target="_blank" class="btn btn-red flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              Watch on YouTube
+            </a>
+            <!-- Delete Button -->
+            <button onclick="deleteMovie()" class="btn btn-gray flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+              🗑️ Delete Movie
+            </button>
+          </div>
+        </div>
+        
+        <!-- Right: Movie Information -->
+        <div class="space-y-6 mobile-space-y">
+          <!-- Movie Poster and Quick Info -->
+          <div id="movieInfoContent" class="mobile-large-text desktop-medium-text text-center text-gray-300">
+            Loading movie information...
+          </div>
+          
+          <!-- Verification Actions -->
+          <div class="border-t border-gray-700 pt-4">
+            <div class="flex items-center justify-between">
+              <h3 class="mobile-large-text desktop-large-text text-lg font-semibold text-white">Status</h3>
+              <button id="refreshInfoBtn" class="mobile-btn-small desktop-medium-text px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200">
+                🔄 Refresh Info
+              </button>
+            </div>
+            
+            {% if movie.verified %}
+              <div class="mt-3 flex items-center justify-between">
+                <div class="flex items-center">
+                  <span class="mobile-medium-text desktop-medium-text inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mr-3">
+                    ✅ Verified
+                  </span>
+                  {% if movie.last_verified %}
+                    <span class="mobile-small-text desktop-medium-text text-sm text-gray-400">
+                      <script>
+                        const date = new Date('{{ movie.last_verified }}');
+                        document.write(date.toLocaleDateString());
+                      </script>
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            {% else %}
+              <div class="mt-3">
+                <form action="/movie/{{ movie.id }}/verify" method="POST" class="flex items-center justify-between">
+                  <span class="mobile-medium-text desktop-medium-text text-sm text-gray-400">Movie needs verification</span>
+                  <button type="submit" class="mobile-btn-small desktop-medium-text px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 text-sm font-medium">
+                    ✅ Mark Verified
+                  </button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 pt-8 border-t border-gray-700">
+      <div class="text-center text-gray-400 text-sm">
+        <p>Made with ❤️ in Michigan</p>
+      </div>
+    </footer>
+  </div>
+  
+  <script>
+    // Title editing functionality
+    let originalTitle = "{{ movie.title }}";
+    
+    function enableTitleEdit() {
+      document.getElementById('titleDisplay').classList.add('hidden');
+      document.getElementById('titleEdit').classList.remove('hidden');
+      document.getElementById('titleInput').focus();
+      document.getElementById('titleInput').select();
+    }
+    
+    function cancelTitleEdit() {
+      document.getElementById('titleInput').value = originalTitle;
+      document.getElementById('titleDisplay').classList.remove('hidden');
+      document.getElementById('titleEdit').classList.add('hidden');
+    }
+    
+    function handleTitleKeypress(event) {
+      if (event.key === 'Enter') {
+        saveTitleEdit();
+      } else if (event.key === 'Escape') {
+        cancelTitleEdit();
+      }
+    }
+    
+    async function saveTitleEdit() {
+      const newTitle = document.getElementById('titleInput').value.trim();
+      
+      if (!newTitle) {
+        alert('Title cannot be empty!');
+        return;
+      }
+      
+      if (newTitle === originalTitle) {
+        cancelTitleEdit();
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/movies/{{ movie.id }}', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: newTitle,
+            url: "{{ movie.url }}",
+            verified: {{ 'true' if movie.verified else 'false' }}
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Update the display title
+          document.getElementById('movieTitle').textContent = newTitle;
+          document.getElementById('titleDisplay').classList.remove('hidden');
+          document.getElementById('titleEdit').classList.add('hidden');
+          
+          // Update the page title
+          document.title = newTitle;
+          
+          // Update the original title for future edits
+          originalTitle = newTitle;
+          
+          // Show success message and check if data refresh was triggered
+          if (result.data_refresh_triggered) {
+            showNotification('✅ Title updated! Refreshing movie info, verification, and age restrictions...', 'info');
+            
+            // Show loading in movie info section
+            document.getElementById('movieInfoContent').innerHTML = 'Refreshing movie information after title change...';
+            
+            // Refresh movie info after a delay to allow background process to complete
+            setTimeout(() => {
+              loadMovieInfo(true);
+            }, 3000);
+            
+            // Refresh again after more time for complete data
+            setTimeout(() => {
+              loadMovieInfo(true);
+            }, 8000);
+          } else {
+            showNotification('✅ Title updated successfully!', 'success');
+          }
+        } else {
+          alert('Error updating title: ' + result.error);
+        }
+      } catch (error) {
+        alert('Error updating title: ' + error.message);
+      }
+    }
+    
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      const duration = type === 'info' ? 6000 : 3000; // Info messages last longer
+      notification.className = `fixed top-4 right-4 px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300 ${
+        type === 'success' ? 'bg-green-600 text-white' : 
+        type === 'error' ? 'bg-red-600 text-white' : 
+        'bg-blue-600 text-white'
+      }`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 300);
+      }, duration);
+    }
+
+    // Fetch movie information when page loads
+    async function loadMovieInfo(isRefresh = false) {
+      const contentDiv = document.getElementById('movieInfoContent');
+      
+      if (isRefresh) {
+        contentDiv.innerHTML = 'Refreshing movie information...';
+      } else if (contentDiv.innerHTML.includes('Loading')) {
+        // Keep the loading message as is for initial load
+      }
+      
+      try {
+        const response = await fetch('/api/movie-info/{{ movie.id }}');
+        const result = await response.json();
+        const contentDiv = document.getElementById('movieInfoContent');
+        
+        if (result.success && result.info) {
+          const info = result.info;
+          const cacheStatus = result.from_cache ? 
+            '<div class="text-xs text-green-600 mb-2">📱 Loaded from cache</div>' : 
+            '<div class="text-xs text-blue-600 mb-2">🌐 Fetched from OMDb API</div>';
+          
+          contentDiv.innerHTML = `
+            ${cacheStatus}
+            <div class="space-y-4 mobile-space-y">
+              ${info.poster && info.poster !== 'N/A' ? `
+                <div class="flex justify-center">
+                  <img src="${info.poster}" alt="${info.title || '{{ movie.title }}'} Poster" 
+                       class="w-32 h-48 object-cover rounded-lg shadow-lg"
+                       onerror="this.style.display='none'">
+                </div>
+              ` : ''}
+              <div class="space-y-3 mobile-space-y text-left">
+                ${info.year && info.year !== 'N/A' ? `<div class="mobile-info-row flex justify-between"><span class="mobile-info-label text-gray-400">Year:</span><span class="mobile-info-value text-white font-medium">${info.year}</span></div>` : ''}
+                ${info.genre && info.genre !== 'N/A' ? `<div class="mobile-info-row flex justify-between"><span class="mobile-info-label text-gray-400">Genre:</span><span class="mobile-info-value text-white font-medium">${info.genre}</span></div>` : ''}
+                ${info.runtime && info.runtime !== 'N/A' ? `<div class="mobile-info-row flex justify-between"><span class="mobile-info-label text-gray-400">Runtime:</span><span class="mobile-info-value text-white font-medium">${info.runtime}</span></div>` : ''}
+                ${info.director && info.director !== 'N/A' ? `<div class="mobile-info-row flex justify-between"><span class="mobile-info-label text-gray-400">Director:</span><span class="mobile-info-value text-white font-medium">${info.director}</span></div>` : ''}
+                ${info.imdb_rating && info.imdb_rating !== 'N/A' ? `<div class="mobile-info-row flex justify-between"><span class="mobile-info-label text-gray-400">Rating:</span><span class="mobile-info-value text-yellow-400 font-medium">⭐ ${info.imdb_rating}/10</span></div>` : ''}
+                ${info.actors && info.actors !== 'N/A' ? `<div class="mobile-info-row"><span class="mobile-info-label text-gray-400">Cast:</span><p class="mobile-plot-text text-white font-medium mt-1 text-sm leading-relaxed">${info.actors}</p></div>` : ''}
+                ${info.plot && info.plot !== 'N/A' ? `<div class="mobile-info-row"><span class="mobile-info-label text-gray-400">Plot:</span><p class="mobile-plot-text text-white mt-1 text-sm leading-relaxed">${info.plot}</p></div>` : ''}
+              </div>
+              ${info.cached_at ? `<div class="mobile-small-text text-xs text-gray-500 text-center pt-2 border-t border-gray-700">Cached: ${new Date(info.cached_at).toLocaleString()}</div>` : ''}
+            </div>
+          `;
+        } else {
+          // Parse debug info from error message if available
+          let debugInfo = null;
+          try {
+            const debugMatch = result.error.match(/Debug info: ({.*})/);
+            if (debugMatch) {
+              debugInfo = JSON.parse(debugMatch[1]);
+            }
+          } catch (e) {
+            console.log('Could not parse debug info:', e);
+          }
+          
+          let debugSection = '';
+          if (debugInfo && debugInfo.search_attempts) {
+            debugSection = `
+              <details class="mt-4">
+                <summary class="cursor-pointer text-blue-600 text-sm font-semibold">🔍 Detailed API Debug Info</summary>
+                <div class="mt-2 space-y-3">
+                  <div class="text-xs">
+                    <strong>API Key Present:</strong> ${debugInfo.api_key_present ? 'Yes' : 'No'}
+                  </div>
+                  ${debugInfo.search_attempts.map((attempt, index) => `
+                    <div class="border border-gray-200 rounded p-3">
+                      <div class="font-semibold text-sm">Attempt #${attempt.attempt_number}</div>
+                      <div class="text-xs mt-1 space-y-1">
+                        <div><strong>Search Term:</strong> "${attempt.search_term}"</div>
+                        <div><strong>Status Code:</strong> ${attempt.status_code || 'N/A'}</div>
+                        ${attempt.error ? `<div class="text-red-600"><strong>Error:</strong> ${attempt.error}</div>` : ''}
+                        ${attempt.response_headers && Object.keys(attempt.response_headers).length > 0 ? `
+                          <details class="mt-1">
+                            <summary class="cursor-pointer text-gray-600">Response Headers</summary>
+                            <pre class="text-xs mt-1 bg-gray-700 text-gray-300 p-1 rounded">${JSON.stringify(attempt.response_headers, null, 2)}</pre>
+                          </details>
+                        ` : ''}
+                        ${attempt.response_data && Object.keys(attempt.response_data).length > 0 ? `
+                          <details class="mt-1">
+                            <summary class="cursor-pointer text-gray-600">Response Data</summary>
+                            <pre class="text-xs mt-1 bg-gray-700 text-gray-300 p-1 rounded">${JSON.stringify(attempt.response_data, null, 2)}</pre>
+                          </details>
+                        ` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </details>
+            `;
+          }
+          
+          contentDiv.innerHTML = `
+            <div class="mobile-medium-text desktop-medium-text text-gray-500">
+              <p>Movie information not found in IMDb database.</p>
+              <p class="mobile-small-text desktop-medium-text text-sm mt-1">Searched for: "${result.searched_title}"</p>
+              ${result.original_title !== result.searched_title ? 
+                `<p class="mobile-small-text desktop-medium-text text-sm">Original title: "${result.original_title}"</p>` : ''}
+              <p class="mobile-small-text desktop-medium-text text-sm mt-2 text-red-600">Error: ${result.error}</p>
+              ${debugSection}
+              <details class="mt-2">
+                <summary class="cursor-pointer text-blue-600 mobile-small-text desktop-medium-text text-sm">Raw Debug Info</summary>
+                <pre class="mobile-small-text text-xs mt-1 bg-gray-700 text-gray-300 p-2 rounded overflow-auto">${JSON.stringify(result, null, 2)}</pre>
+              </details>
+            </div>
+          `;
+        }
+      } catch (error) {
+        document.getElementById('movieInfoContent').innerHTML = `
+          <div class="mobile-medium-text desktop-medium-text text-red-500">
+            Error loading movie information: ${error.message}
+          </div>
+        `;
+      }
+    }
+    
+    // Load movie info when page loads
+    loadMovieInfo();
+    
+    // Add refresh button handler
+    document.getElementById('refreshInfoBtn').addEventListener('click', function() {
+      loadMovieInfo(true);
+    });
+    
+    // Function to delete the current movie
+    async function deleteMovie() {
+      if (!confirm('Are you sure you want to delete this movie? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/movies/{{ movie.id }}', {
+          method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Movie deleted successfully!');
+          // Redirect to the main page
+          window.location.href = '/';
+        } else {
+          alert('Failed to delete movie: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error deleting movie:', error);
+        alert('Failed to delete movie. Please try again.');
+      }
+    }
+  </script>
+</body>
+</html>
