@@ -1301,14 +1301,24 @@ def change_password():
     """Change user password"""
     form = ChangePasswordForm()
     if form.validate_on_submit():
+        # Get current password hash from database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT password_hash FROM users WHERE id = ?', (current_user.id,))
+        user_data = cursor.fetchone()
+        
+        if not user_data:
+            flash('User not found', 'error')
+            conn.close()
+            return redirect(url_for('profile'))
+        
         # Verify current password
-        if not check_password_hash(current_user.password_hash, form.current_password.data):
+        if not check_password_hash(user_data['password_hash'], form.current_password.data):
             flash('Current password is incorrect', 'error')
+            conn.close()
         else:
             # Update password
             new_hash = generate_password_hash(form.new_password.data)
-            conn = get_db_connection()
-            cursor = conn.cursor()
             cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', 
                          (new_hash, current_user.id))
             conn.commit()
