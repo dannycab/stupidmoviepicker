@@ -36,7 +36,7 @@ class User(UserMixin):
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = is_admin
-        self.is_active = is_active
+        self.active = is_active  # Renamed to avoid conflict with Flask-Login method
         self.created_at = created_at
         self.last_login = last_login
         self.profile_picture = profile_picture
@@ -64,7 +64,7 @@ class User(UserMixin):
         """Return True if user is anonymous"""
         return False
     
-    def is_active_user(self):
+    def is_active(self):
         """Return True if user is active"""
         return bool(self.is_active)
     

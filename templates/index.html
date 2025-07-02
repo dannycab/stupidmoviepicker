@@ -17,6 +17,13 @@
     <div class="text-center mb-8">
       <h1 class="text-4xl font-bold mb-6">🎬 YouTube Movie Picker</h1>
       
+      <!-- User Navigation -->
+      <div class="mb-4 text-sm text-gray-300">
+        Welcome, <span class="text-blue-400 font-semibold">{{ current_user.username }}</span>! 
+        <a href="{{ url_for('profile') }}" class="text-blue-400 hover:text-blue-300 ml-2">Profile</a> | 
+        <a href="{{ url_for('logout') }}" class="text-red-400 hover:text-red-300">Logout</a>
+      </div>
+      
       <!-- Primary Actions -->
       <div class="mobile-flex-col flex flex-col sm:flex-row justify-center gap-4 mb-6 mobile-section">
         <a href="/random" class="mobile-primary-btn btn-red px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center">
