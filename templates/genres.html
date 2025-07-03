@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎭 Movies by Genre - Movie Picker</title>
+  <title>🎭 Movies by Genre - stupidMoviePicker v0.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Static CSS Files -->
@@ -14,17 +14,16 @@
 <body class="bg-gray-900 text-gray-100 p-6 mobile-container">
   <div class="max-w-6xl mx-auto">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-4xl font-bold">🎭 Movies by Genre</h1>
-      <div class="flex gap-4">
-        <a href="/" class="mobile-btn btn-gray inline-flex items-center px-4 py-2 rounded-md transition duration-200 text-center">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-          Back to Movies
-        </a>
+    <header class="smp-header mb-8">
+      <div class="smp-header-inner flex items-center justify-between">
+        <span class="smp-title text-3xl font-bold">stupidMoviePicker v0.1</span>
+        <nav class="smp-nav flex gap-4">
+          <a href="/" class="smp-link">home</a>
+          <a href="/admin" class="smp-link">admin</a>
+          <a href="/genres" class="smp-link">genres</a>
+        </nav>
       </div>
-    </div>
+    </header>
 
     <!-- Genre Filter -->
     <div class="genre-filter-container relative">
@@ -69,8 +68,10 @@
     </div>
 
     <!-- Footer -->
-    <footer class="app-footer">
-      <p>Made with ❤️ in Michigan</p>
+    <footer class="smp-footer mt-12 pt-8 border-t border-gray-700">
+      <div class="text-center text-gray-400 text-sm">
+        <p>made with <span style="color: #ff5c57">♥</span> by hellmo. this is the stupid way.</p>
+      </div>
     </footer>
   </div>
 

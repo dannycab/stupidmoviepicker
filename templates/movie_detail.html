@@ -134,50 +134,24 @@
 </head>
 <body class="bg-gray-900 text-gray-100 p-6 mobile-container">
   <div class="max-w-4xl mx-auto space-y-6 mobile-space-y">
-    <!-- Editable Movie Title and Menu (single row) -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-      <div class="flex-1 flex items-center gap-3">
-        <div id="titleDisplay" class="inline-block">
-          <h1 class="mobile-title desktop-large-text text-3xl font-bold cursor-pointer hover:bg-gray-800 px-2 py-1 rounded transition duration-200 group" 
-              id="movieTitle" 
-              title="Click to edit title"
-              onclick="enableTitleEdit()">
-            {{ movie.title }}
-            <span class="text-lg opacity-50 group-hover:opacity-100 ml-2">✏️</span>
-          </h1>
-        </div>
-        <div id="titleEdit" class="hidden">
-          <input type="text" 
-                 id="titleInput" 
-                 class="mobile-title desktop-large-text text-3xl font-bold bg-gray-800 text-white border border-gray-600 rounded px-2 py-1 w-full max-w-2xl"
-                 value="{{ movie.title }}"
-                 onkeypress="handleTitleKeypress(event)"
-                 onblur="saveTitleEdit()">
-          <div class="mt-2 space-x-2">
-            <button onclick="saveTitleEdit()" class="mobile-btn-small px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
-              ✅ Save
-            </button>
-            <button onclick="cancelTitleEdit()" class="mobile-btn-small px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">
-              ❌ Cancel
-            </button>
-          </div>
-        </div>
+    <!-- Header -->
+    <header class="smp-header mb-8">
+      <div class="smp-header-inner flex items-center justify-between">
+        <span class="smp-title text-3xl font-bold">stupidMoviePicker v0.1</span>
+        <nav class="smp-nav flex gap-4">
+          <a href="/" class="smp-link">home</a>
+          <a href="/admin" class="smp-link">admin</a>
+          <a href="/genres" class="smp-link">genres</a>
+        </nav>
       </div>
-      <div class="mobile-nav-flex flex gap-4">
-        <a href="/genres" class="mobile-btn inline-flex items-center px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition duration-200">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-          Back to Genres
-        </a>
-        <a href="/" class="mobile-btn inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-          </svg>
-          Home
-        </a>
-      </div>
-    </div>
+    </header>
+</div>
+<!-- Footer -->
+<footer class="smp-footer mt-12 pt-8 border-t border-gray-700">
+  <div class="text-center text-gray-400 text-sm">
+    <p>made with <span style="color: #ff5c57">♥</span> by hellmo. this is the stupid way.</p>
+  </div>
+</footer>
     
     <!-- Main Movie Card -->
     <div class="bg-gray-800 rounded-xl shadow-xl overflow-hidden">

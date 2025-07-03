@@ -1,42 +1,54 @@
 
 
-# 🎬 YouTube Movie Picker
+
+# 🎬 stupidMoviePicker
+
 
 _This project is not maintained. There is no roadmap. There is no support. There is only vibe coding._
 
+
 ## What is this?
 
-Paste YouTube movie links. Filter by genre. Click random. Sometimes it works. Sometimes it doesn't. If it breaks, open an issue and I'll vibe code a fix. No promises. No explanations. No PRs.
+Paste YouTube movie links. Filter by genre. Click random. Sometimes it works. Sometimes it doesn't. If it breaks, open an issue and I'll vibe code a fix. No promises. No explanations. No PRs. Now rebranded as stupidMoviePicker.
 
 ## Screenshots
 
 ### Main Interface
+
 ![Homepage](images/screenshots/home-page.png)
 *Main movie grid with genre filtering and random picker*
 
 ### Movie Search & Adding
+
 ![Movie Search](images/screenshots/main-page-search.png)
 *Search functionality for finding movies*
+
 
 ![Add Movie](images/screenshots/main-page-add-movie.png)
 *Simple URL-based movie addition interface*
 
 ### Movie Details
+
 ![Movie Detail](images/screenshots/movie-detail-page.png)
 *Rich movie information with OMDb metadata and verification status*
 
 ### Genre Management
+
 ![Genres Overview](images/screenshots/genres-page.png)
 *Browse movies by genre categories*
+
 
 ![Genre Detail](images/screenshots/genre-detail-page.png)
 *Detailed view of movies within a specific genre*
 
 ### Admin Dashboard
+
 ![Admin Dashboard](images/screenshots/admin-page.png)
 *Statistics and management interface for administrators*
 
+
 > 📸 **Note**: Screenshots show the app in action. Some features may look different due to ongoing vibe coding updates.
+
 
 ## How do I use it?
 
@@ -47,11 +59,12 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Or use Docker. Or don't. Up to you.
+Or use Docker. Or don't. Up to you. This is stupidMoviePicker now.
 
 ## API
 
-See [`API.md`](API.md). If you want a new endpoint, open an issue. I'll vibe code it. No docs, just code.
+
+See [`API.md`](API.md). If you want a new endpoint, open an issue. I'll vibe code it. No docs, just code. Project: stupidMoviePicker.
 
 ## Contributing
 

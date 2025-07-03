@@ -1,6 +1,8 @@
-# 📡 API Documentation
 
-Complete REST API documentation for YouTube Movie Picker. The API provides programmatic access to all movie management and discovery features.
+# 📡 stupidMoviePicker v0.1 — API Documentation
+
+Complete REST API documentation for **stupidMoviePicker v0.1**. The API provides programmatic access to all movie management and discovery features.
+
 
 ## 🔗 Base URL
 
@@ -12,49 +14,12 @@ http://localhost:5000
 
 Visit `/api/docs/` for interactive Swagger documentation with live testing capabilities.
 
-## 🔐 Authentication
 
-**Important**: As of version 2.0, all API endpoints require user authentication. The API uses session-based authentication with Flask-Login.
+## 🔓 authentication
 
-### Authentication Methods
+no authentication required. no accounts. no passwords. no logins. no cookies. no tracking. no drama.
 
-#### 1. Web Session Authentication
-- Login via `/login` endpoint with username/password
-- Session cookies are automatically handled by the browser
-- Recommended for web applications
-
-#### 2. API Usage After Login
-- All API endpoints require an authenticated session
-- Unauthenticated requests will return `401 Unauthorized`
-- Each user can only access their own movies and data
-
-### User Endpoints
-
-#### Login
-**POST** `/login`
-```json
-{
-  "username": "your_username",
-  "password": "your_password"
-}
-```
-
-#### Register
-**POST** `/register`
-```json
-{
-  "username": "new_username",
-  "email": "user@example.com",
-  "password": "secure_password",
-  "first_name": "First",
-  "last_name": "Last"
-}
-```
-
-#### Logout
-**POST** `/logout`
-
-> **Note**: All movie-related API endpoints are now user-scoped. Users can only access and modify their own movies.
+as of v0.1, all api endpoints are open and global. everyone shares the same movie list and api access. it's the stupid way.
 
 ## 📊 Response Format
 
@@ -744,9 +709,13 @@ For API questions or issues:
 
 1. Check the interactive documentation at `/api/docs/`
 2. Review this documentation for examples
-3. Check [GitHub Issues](https://github.com/your-username/YTMoviePicker/issues)
+3. Check [GitHub Issues](https://github.com/your-username/stupidMoviePicker/issues)
 4. Create a new issue with API-specific details
 
 ---
 
 This API documentation is automatically kept in sync with the application. For the most up-to-date interactive documentation, always refer to `/api/docs/` when the application is running.
+
+---
+
+**stupidMoviePicker v0.1** — the ultra-simple, no-login, global movie picker for YouTube movies.

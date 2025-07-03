@@ -1,6 +1,8 @@
-# 🚀 Installation Guide
 
-This guide provides comprehensive installation instructions for YouTube Movie Picker across different environments and deployment scenarios.
+
+# 🚀 stupidMoviePicker v0.1 — Installation Guide
+
+Welcome to **stupidMoviePicker v0.1** — the ultra-simple, no-login, global movie picker for YouTube movies. This guide provides comprehensive installation instructions for stupidMoviePicker v0.1 across different environments and deployment scenarios.
 
 ## 📋 Prerequisites
 
@@ -21,22 +23,21 @@ This guide provides comprehensive installation instructions for YouTube Movie Pi
 - **pip**: Python package manager
 - **Git**: For cloning the repository
 
-## 🔐 User Authentication Setup
 
-**New in v2.0**: YouTube Movie Picker now includes multi-user support with authentication.
 
-### First Time Setup
-1. **Database Migration**: The first run will automatically migrate the database to support users
-2. **Default Admin User**: An admin account is created automatically:
-   - **Username**: `admin`
-   - **Password**: `admin123`
-   - **⚠️ IMPORTANT**: Change this password immediately after first login!
+stupidMoviePicker is a simple, no-login, global movie picker for YouTube movies. All users share the same movie list—no authentication or user accounts required.
 
-### User Management
-- **Registration**: New users can register at `/register`
-- **Login**: Access the app at `/login`
-- **Profile**: Users can manage their profile at `/profile`
-- **Multi-User**: Each user maintains their own private movie collection
+## 🎬 About stupidMoviePicker v0.1
+
+**stupidMoviePicker v0.1** is a reimagined, ultra-minimalist movie picker for YouTube. All users share the same movie list—no authentication or user accounts required.
+
+### Key Features
+- Add, browse, and pick random movies from a shared list
+- Import YouTube playlists (coming soon)
+- Simple admin panel at `/admin`
+- API documentation at `/api/docs/`
+
+No registration, login, or user management—just pick movies!
 
 ## 🐳 Docker Installation (Recommended)
 
@@ -81,10 +82,11 @@ brew install docker docker-compose
 #### Windows
 Download and install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop)
 
+
 ### Step 2: Clone Repository
 ```bash
-git clone https://github.com/your-username/YTMoviePicker.git
-cd YTMoviePicker
+git clone https://github.com/your-username/stupidMoviePicker.git
+cd stupidMoviePicker
 ```
 
 ### Step 3: Configure Environment (Optional)
@@ -183,9 +185,10 @@ brew install python3 git
 
 ### Step 2: Clone and Setup
 ```bash
+
 # Clone repository
-git clone https://github.com/your-username/YTMoviePicker.git
-cd YTMoviePicker
+git clone https://github.com/your-username/stupidMoviePicker.git
+cd stupidMoviePicker
 
 # Create virtual environment
 python3 -m venv venv
@@ -265,28 +268,32 @@ server {
 
 ### Systemd Service (Linux)
 ```ini
-# /etc/systemd/system/ytmoviepicker.service
+
+# /etc/systemd/system/stupidmoviepicker.service
 [Unit]
-Description=YouTube Movie Picker
+Description=stupidMoviePicker v0.1
 After=network.target
+
 
 [Service]
 Type=simple
 User=www-data
-WorkingDirectory=/opt/YTMoviePicker
-Environment=PATH=/opt/YTMoviePicker/venv/bin
-ExecStart=/opt/YTMoviePicker/venv/bin/python app.py
+WorkingDirectory=/opt/stupidMoviePicker
+Environment=PATH=/opt/stupidMoviePicker/venv/bin
+ExecStart=/opt/stupidMoviePicker/venv/bin/python app.py
 Restart=always
+
 
 [Install]
 WantedBy=multi-user.target
 ```
 
+
 Enable and start:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable ytmoviepicker
-sudo systemctl start ytmoviepicker
+sudo systemctl enable stupidmoviepicker
+sudo systemctl start stupidmoviepicker
 ```
 
 ## 🔒 Security Considerations
@@ -363,7 +370,7 @@ If you encounter issues:
 
 1. Check this installation guide thoroughly
 2. Review the [main README](README.md) for configuration options
-3. Check [GitHub Issues](https://github.com/your-username/YTMoviePicker/issues)
+3. Check [GitHub Issues](https://github.com/your-username/stupidMoviePicker/issues)
 4. Create a new issue with:
    - Your operating system and version
    - Installation method (Docker/Manual)
@@ -380,4 +387,4 @@ After installation:
 4. **Check Admin Panel**: Visit `/admin` for management tools
 5. **Read API Docs**: Visit `/api/docs/` for API documentation
 
-Happy movie discovering! 🎬
+Happy movie discovering with stupidMoviePicker v0.1! 🎬

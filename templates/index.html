@@ -14,30 +14,23 @@
 <body class="bg-gray-900 text-gray-100 p-6 mobile-container">
   <div class="max-w-6xl mx-auto">
     <!-- Header Section -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold mb-6">🎬 YouTube Movie Picker</h1>
-      
-      <!-- User Navigation -->
-      <div class="mb-4 text-sm text-gray-300">
-        Welcome, <span class="text-blue-400 font-semibold">{{ current_user.username }}</span>! 
-        <a href="{{ url_for('profile') }}" class="text-blue-400 hover:text-blue-300 ml-2">Profile</a> | 
-        <a href="{{ url_for('logout') }}" class="text-red-400 hover:text-red-300">Logout</a>
+    <header class="mb-8" style="background:#222831;border-radius:0 0 16px 16px;padding:2.5rem 0 1.5rem 0;">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold mb-2" style="color:#ff5c57;font-family:monospace;">stupidMoviePicker <span style="font-size:1.2rem;color:#fff;">v0.1</span></h1>
+        <p style="color:#fff;font-size:1.1rem;margin-top:0.5rem;font-family:monospace;">the ultra-simple, no-login, global movie picker for youtube movies</p>
       </div>
-      
-      <!-- Primary Actions -->
-      <div class="mobile-flex-col flex flex-col sm:flex-row justify-center gap-4 mb-6 mobile-section">
-        <a href="/random" class="mobile-primary-btn btn-red px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center">
-          🎲 Watch Random Movie
+      <div class="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+        <a href="/random" class="mobile-primary-btn btn-red px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center" style="background:#ff5c57;color:#fff;">
+          🎲 watch random movie
         </a>
-        <a href="/genres" class="mobile-primary-btn btn-purple px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center">
-          🎭 Browse by Genre
+        <a href="/genres" class="mobile-primary-btn btn-purple px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg text-center" style="background:#393e46;color:#fff;">
+          🎭 browse by genre
         </a>
-        <button id="searchMovieToggle" class="mobile-primary-btn btn-green px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg">
-          🔍 Search YouTube
+        <button id="searchMovieToggle" class="mobile-primary-btn btn-green px-6 py-3 rounded-lg transition duration-200 text-lg font-semibold shadow-lg" style="background:#00adb5;color:#fff;">
+          🔍 search youtube
         </button>
       </div>
-      
-      <!-- Secondary Actions -->
+    </header>
       <div class="mobile-flex-col flex flex-col sm:flex-row justify-center gap-3 mobile-section">
         <button id="addMovieToggle" class="mobile-secondary-btn btn-blue px-4 py-2 rounded-md transition duration-200 text-sm">
           ➕ Add Movie
@@ -115,8 +108,10 @@
     </div>
 
     <!-- Footer -->
-    <footer class="app-footer">
-      <p>Made with ❤️ in Michigan</p>
+    <footer class="app-footer" style="background:#222831;border-radius:16px 16px 0 0;padding:1.5rem 0 1.5rem 0;margin-top:2rem;">
+      <div class="text-center">
+        <p style="color:#ff5c57;font-size:1.1rem;font-family:monospace;margin:0;">stupidMoviePicker v0.1 &mdash; made with ❤️ for movie night</p>
+      </div>
     </footer>
   </div>
 
