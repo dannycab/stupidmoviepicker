@@ -1,7 +1,13 @@
 
 
 
+
 # 🎬 stupidMoviePicker
+
+![version](https://img.shields.io/badge/release-v0.0.1-blueviolet?style=flat-square)
+
+> **v0.0.1** — first public stupid release. no auth, no accounts, just global movie picking. enjoy the stupidity.
+
 
 
 _This project is not maintained. There is no roadmap. There is no support. There is only vibe coding._
@@ -41,11 +47,6 @@ Paste YouTube movie links. Filter by genre. Click random. Sometimes it works. So
 ![Genre Detail](images/screenshots/genre-detail-page.png)
 *Detailed view of movies within a specific genre*
 
-### Admin Dashboard
-
-![Admin Dashboard](images/screenshots/admin-page.png)
-*Statistics and management interface for administrators*
-
 
 > 📸 **Note**: Screenshots show the app in action. Some features may look different due to ongoing vibe coding updates.
 
@@ -53,13 +54,21 @@ Paste YouTube movie links. Filter by genre. Click random. Sometimes it works. So
 ## How do I use it?
 
 ```sh
+git clone https://github.com/dannycab/stupidmoviepicker.git
+cd stupidmoviepicker
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-Or use Docker. Or don't. Up to you. This is stupidMoviePicker now.
+Or use Docker:
+
+```sh
+docker-compose up
+```
+
+That's it. Open http://localhost:5000, paste a YouTube movie link, and click random. No login, no accounts, just stupidity.
 
 ## API
 
@@ -76,18 +85,12 @@ If you want something, open an issue. I will respond with code only. No explanat
 
 ## Features
 
-- [x] **User Authentication**: Multi-user support (because people asked for it)
-- [x] **Personal Movie Lists**: Your movies, nobody else's
+- [x] 🦑 Stupid Simple: No login, no accounts, no setup
 - [x] Add movies by YouTube URL or search
 - [x] Genre filtering and detail pages
 - [x] OMDb metadata (year, rating, poster, etc)
-- [x] Age restriction and verification
-- [x] Admin dashboard for stats and cache management
-- [x] **Profile Management**: Edit profile, change password, the usual stuff
-- [x] Responsive, clean UI (mobile-friendly)
 - [x] Random movie picker
 - [x] API endpoints for everything
-- [x] Verified badge overlays
 - [x] Color-coded action buttons
 - [x] Docker support
 
@@ -95,18 +98,12 @@ If you want something, open an issue. I will respond with code only. No explanat
 
 There is no roadmap. Sometimes I add things if the vibes are right. Sometimes I don't. Features may appear, disappear, or never happen at all. If you want something, open an issue and maybe the vibes will deliver.
 
-Current vibe level: **User Authentication ✅ COMPLETED** (someone asked, vibes delivered)
+Current vibe level: **v0.0.1 — No auth, no accounts, just stupidity.**
 
-## First Time Setup
 
-**NEW**: User authentication is now live. Here's what you need to know:
+## Release Notes
 
-1. **Default Admin**: Username `admin`, password `admin123` (change this immediately!)
-2. **Register**: Go to `/register` to create your account
-3. **Login**: Access `/login` to get in
-4. **Your Movies**: Each user gets their own private movie collection
-
-That's it. No setup, no config files, just run and register.
+See the [v0.0.1 release notes](https://github.com/dannycab/stupidmoviepicker/releases/tag/v0.0.1) for details.
 
 ## More Info
 

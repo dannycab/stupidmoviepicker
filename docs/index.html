@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎬 stupidMoviePicker</title>
     <meta name="description" content="A simple stupidMoviePicker web app. Add movies by URL or search, filter by genre, and randomly pick what to watch.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="version" content="v0.0.1">
     <style>
         * {
             margin: 0;
@@ -347,12 +347,13 @@
 <body>
     <div class="hero">
         <div class="container">
-            <h1>🎬 stupidMoviePicker</h1>
+            <h1>🎬 stupidMoviePicker <span style="font-size:1.2rem; color:#a78bfa; vertical-align:middle;">v0.0.1</span></h1>
             <p class="subtitle">A simple stupidMoviePicker web app. Add movies by URL or search, filter by genre, and randomly pick what to watch.</p>
             <div class="badges">
                 <div class="badge">🐍 Python</div>
                 <div class="badge">🌶️ Flask</div>
-                <div class="badge">🔐 User Auth</div>
+                <div class="badge" style="background:#a78bfa;color:#fff;">v0.0.1</div>
+                <div class="badge">🦑 Stupid Simple</div>
                 <div class="badge">🎥 YouTube</div>
                 <div class="badge">🎲 Random Picker</div>
                 <div class="badge">📱 Mobile Friendly</div>
@@ -360,11 +361,12 @@
             </div>
         </div>
     </div>
-    
     <div class="main-content">
         <div class="container">
             <div class="vibe-notice">
                 <strong>⚡ Vibe Coding Project ⚡</strong><br>
+                <span style="color:#a78bfa;font-weight:bold;">v0.0.1 released — first public stupid release. No auth, no accounts, just global movie picking. Enjoy the stupidity.</span><br>
+                <span style="color:#38bdf8;">See <a href="https://github.com/dannycab/stupidmoviepicker/releases/tag/v0.0.1" style="color:#38bdf8;">release notes</a>.</span><br>
                 This project is not maintained. There is no roadmap. There is no support. There is only vibe coding.
             </div>
             
@@ -373,8 +375,8 @@
                 <p style="font-size: 1.1rem; color: #cbd5e1;">Paste YouTube movie links. Filter by genre. Click random. Sometimes it works. Sometimes it doesn't. If it breaks, open an issue and I'll vibe code a fix. No promises. No explanations. No PRs.</p>
                 
                 <div style="background: #1e293b; padding: 1.5rem; border-radius: 10px; margin-top: 2rem; border: 1px solid #334155;">
-                    <h3 style="color: #22d3ee; margin-bottom: 1rem; font-size: 1.2rem;">🎉 NEW: User Authentication!</h3>
-                    <p style="color: #cbd5e1;">Multi-user support is now live! Each user gets their own private movie collection. Default admin account: <code>admin</code> / <code>admin123</code> - change this immediately!</p>
+                    <h3 style="color: #22d3ee; margin-bottom: 1rem; font-size: 1.2rem;">🎉 v0.0.1 Released!</h3>
+                    <p style="color: #cbd5e1;">First public release of <strong>stupidMoviePicker</strong>! Paste YouTube links, filter by genre, and pick something random. <strong>No login, no accounts, just pure stupidity.</strong> <a href="https://github.com/dannycab/stupidmoviepicker/releases/tag/v0.0.1" style="color:#38bdf8;">See release notes</a>.</p>
                 </div>
             </div>
             
@@ -444,12 +446,11 @@
             
             <div class="features">
                 <div class="feature">
-                    <h3>� User Authentication</h3>
-                    <p><strong>NEW!</strong> Multi-user support with secure login/registration. Each user gets their own private movie collection. Default admin: admin/admin123 (change it!)</p>
+                    <h3>🦑 Stupid Simple</h3>
+                    <p>No login, no accounts, no setup. Paste a YouTube link, pick a genre, and let fate decide your movie night.</p>
                 </div>
-                
                 <div class="feature">
-                    <h3>�🔗 Easy Movie Adding</h3>
+                    <h3>🔗 Easy Movie Adding</h3>
                     <p>Add movies by pasting YouTube URLs or using the search function. Each movie gets metadata from OMDb including year, rating, and poster.</p>
                 </div>
                 
@@ -463,15 +464,7 @@
                     <p>Can't decide what to watch? Hit the random button and let fate decide your movie night!</p>
                 </div>
                 
-                <div class="feature">
-                    <h3>👤 Profile Management</h3>
-                    <p>Edit your profile, change passwords, and manage your account. Visit <code>/profile</code> after logging in.</p>
-                </div>
-                
-                <div class="feature">
-                    <h3>📊 Admin Dashboard</h3>
-                    <p>Built-in admin interface for managing your movie collection, viewing stats, and cache management.</p>
-                </div>
+                <!-- Profile Management and Admin Dashboard removed for v0.0.1: no accounts, no admin. -->
                 
                 <div class="feature">
                     <h3>🔧 REST API</h3>
@@ -487,10 +480,10 @@
             <div class="cta-section">
                 <h2>Get Started</h2>
                 <div class="cta-buttons">
-                    <a href="https://github.com/dannycab/ytmoviepicker" class="btn btn-primary">
+                    <a href="https://github.com/dannycab/stupidmoviepicker" class="btn btn-primary">
                         📁 View on GitHub
                     </a>
-                    <a href="https://github.com/dannycab/ytmoviepicker/archive/refs/heads/main.zip" class="btn btn-secondary">
+                    <a href="https://github.com/dannycab/stupidmoviepicker/archive/refs/heads/main.zip" class="btn btn-secondary">
                         ⬇️ Download ZIP
                     </a>
                 </div>
@@ -499,8 +492,8 @@
             <div class="code-section">
                 <h3 style="color: #e2e8f0; margin-bottom: 1rem;">🚀 Quick Start</h3>
                 <pre class="code-block"><code># Clone the repository
-git clone https://github.com/dannycab/ytmoviepicker.git
-cd ytmoviepicker
+git clone https://github.com/dannycab/stupidmoviepicker.git
+cd stupidmoviepicker
 
 # Set up virtual environment
 python3 -m venv venv
@@ -513,9 +506,9 @@ pip install -r requirements.txt
 python app.py
 
 # First time setup:
-# 1. Visit /register to create your account
-# 2. Or login with admin/admin123 (change this!)
-# 3. Start adding movies and vibing</code></pre>
+# 1. Open http://localhost:5000
+# 2. Paste a YouTube movie link
+# 3. Click random and vibe</code></pre>
                 <p style="color: #94a3b8;">Or use Docker:</p>
                 <pre class="code-block"><code>docker-compose up</code></pre>
             </div>
@@ -526,7 +519,7 @@ python app.py
                     <li>No playlist support yet (manual URL entry only)</li>
                     <li>Search is slow (doesn't use YouTube API by default)</li>
                     <li>No bulk import features</li>
-                    <li>User registration is open (no admin approval yet)</li>
+                    <li>No user accounts or authentication (by design)</li>
                 </ul>
             </div>
             
