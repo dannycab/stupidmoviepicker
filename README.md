@@ -4,9 +4,12 @@
 
 # 🎬 stupidMoviePicker
 
-![version](https://img.shields.io/badge/release-v0.0.1-blueviolet?style=flat-square)
+![version](https://img.shields.io/badge/release-v0.1-blueviolet?style=flat-square)
+![performance](https://img.shields.io/badge/v0.9-in--development-orange?style=flat-square)
 
-> **v0.0.1** — first public stupid release. no auth, no accounts, just global movie picking. enjoy the stupidity.
+> **v0.1** — enhanced stupid release. embedded video player, PWA support, video duration tracking, advanced random picker, CSV export. still stupid simple.
+>
+> **v0.9** — performance upgrade in development. connection pooling, optimized queries, 5x faster. see [UPGRADE_v0.9.md](UPGRADE_v0.9.md) for details.
 
 
 
@@ -85,25 +88,41 @@ If you want something, open an issue. I will respond with code only. No explanat
 
 ## Features
 
+### v0.1 Features
 - [x] 🦑 Stupid Simple: No login, no accounts, no setup
 - [x] Add movies by YouTube URL or search
 - [x] Genre filtering and detail pages
 - [x] OMDb metadata (year, rating, poster, etc)
-- [x] Random movie picker
+- [x] Random movie picker with advanced filters (genre, year, rating)
+- [x] **Embedded video player** - watch movies in-app
+- [x] **Video duration tracking** - scraped from YouTube
+- [x] **CSV export** - download your movie library
+- [x] **PWA support** - installable on mobile devices
 - [x] API endpoints for everything
 - [x] Color-coded action buttons
 - [x] Docker support
+- [x] Video ID normalization (prevents duplicates)
+
+### v0.9 Performance Upgrades (In Development)
+- [ ] Connection pooling (80% less DB overhead)
+- [ ] Optimized SELECT queries (30% faster)
+- [ ] Composite database indexes (60% faster filtered queries)
+- [ ] Background task optimization (90% faster bulk operations)
+- [ ] API result caching (50% fewer wasted calls)
+- [ ] **Expected**: 5x performance improvement, 100+ concurrent users
 
 ## Roadmap
 
 There is no roadmap. Sometimes I add things if the vibes are right. Sometimes I don't. Features may appear, disappear, or never happen at all. If you want something, open an issue and maybe the vibes will deliver.
 
-Current vibe level: **v0.0.1 — No auth, no accounts, just stupidity.**
+Current vibe level: **v0.1 — Embedded player, PWA support, performance analysis complete.**
 
 
 ## Release Notes
 
-See the [v0.0.1 release notes](https://github.com/dannycab/stupidmoviepicker/releases/tag/v0.0.1) for details.
+- **v0.1** - Embedded video player, PWA support, video duration, advanced filters, CSV export
+- **v0.9** (in development) - Performance optimizations: 5x faster, connection pooling, batch operations
+- See [UPGRADE_v0.9.md](UPGRADE_v0.9.md) for detailed performance analysis and optimization plan
 
 ## More Info
 

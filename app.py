@@ -3,7 +3,7 @@ load_dotenv()
 
 import re
 import os
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session, make_response, g
 import sqlite3
 import random
 import threading
@@ -13,12 +13,15 @@ from datetime import datetime
 import time
 from flasgger import Swagger, swag_from
 import json
+import csv
+import io
+from queue import Queue
+from contextlib import contextmanager
 
-# Authentication imports
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from werkzeug.security import check_password_hash, generate_password_hash
-from auth import User, UserManager
-from forms import LoginForm, RegistrationForm, ProfileForm, ChangePasswordForm
+# Removed unused authentication imports - app is now auth-free
+
+# Version
+VERSION = "0.9"
 
 
 # Database file path - unified logic for Docker and local development
@@ -34,10 +37,89 @@ def get_db_path():
     else:
         data_dir = '.'
         print(f"📂 Using current directory for database - {data_dir}")
-    
+
     db_path = os.path.join(data_dir, 'movies.db')
     print(f"🗄️ Database path: {db_path}")
     return db_path
+
+
+# Simple Connection Pool for SQLite
+class ConnectionPool:
+    """Thread-safe connection pool for SQLite"""
+    def __init__(self, db_path, pool_size=5):
+        self.db_path = db_path
+        self.pool_size = pool_size
+        self._pool = Queue(maxsize=pool_size)
+        self._lock = threading.Lock()
+
+        # Pre-create connections
+        for _ in range(pool_size):
+            conn = sqlite3.connect(db_path, check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            # Enable WAL mode for better concurrency
+            conn.execute('PRAGMA journal_mode=WAL')
+            conn.execute('PRAGMA synchronous=NORMAL')
+            self._pool.put(conn)
+
+    @contextmanager
+    def get_connection(self):
+        """Get a connection from the pool"""
+        conn = self._pool.get()
+        try:
+            yield conn
+        finally:
+            self._pool.put(conn)
+
+    def close_all(self):
+        """Close all connections in the pool"""
+        while not self._pool.empty():
+            conn = self._pool.get()
+            conn.close()
+
+# Global connection pool (initialized after app starts)
+db_pool = None
+
+
+# Helper function to extract YouTube video ID from various URL formats
+def extract_youtube_video_id(url):
+    """Extract normalized video ID from YouTube URL.
+
+    Handles formats:
+    - https://www.youtube.com/watch?v=VIDEO_ID
+    - https://youtu.be/VIDEO_ID
+    - https://www.youtube.com/embed/VIDEO_ID
+    - https://www.youtube.com/v/VIDEO_ID
+
+    Returns the video ID or None if not a valid YouTube URL.
+    """
+    if not url:
+        return None
+
+    try:
+        from urllib.parse import urlparse, parse_qs
+
+        parsed = urlparse(url)
+
+        # Handle youtu.be short URLs
+        if parsed.netloc in ['youtu.be', 'www.youtu.be']:
+            return parsed.path.lstrip('/').split('?')[0].split('&')[0]
+
+        # Handle youtube.com URLs
+        if 'youtube.com' in parsed.netloc:
+            # Check for /watch?v= format
+            if parsed.path == '/watch':
+                video_id = parse_qs(parsed.query).get('v', [None])[0]
+                if video_id:
+                    return video_id
+
+            # Check for /embed/ or /v/ format
+            if parsed.path.startswith('/embed/') or parsed.path.startswith('/v/'):
+                return parsed.path.split('/')[2].split('?')[0]
+
+        return None
+    except Exception as e:
+        print(f"⚠️ Error extracting video ID from URL {url}: {e}")
+        return None
 
 
 # One-time migration: add last_verified column if not exists
@@ -100,7 +182,38 @@ def migrate_db():
     ''')
     conn.commit()
     print("✅ Movie info cache table ready")
-    
+
+    # Add video_id column for normalized duplicate detection
+    if "video_id" not in columns:
+        cursor.execute("ALTER TABLE movies ADD COLUMN video_id TEXT")
+        conn.commit()
+        print("✅ Added video_id column for normalized duplicate detection")
+
+        # Populate video_id for existing movies
+        movies = cursor.execute('SELECT id, url FROM movies').fetchall()
+        for movie in movies:
+            video_id = extract_youtube_video_id(movie[1])
+            if video_id:
+                cursor.execute('UPDATE movies SET video_id = ? WHERE id = ?', (video_id, movie[0]))
+        conn.commit()
+        print(f"✅ Populated video_id for {len(movies)} existing movies")
+
+    # Add duration column for video length tracking
+    if "duration" not in columns:
+        cursor.execute("ALTER TABLE movies ADD COLUMN duration TEXT")
+        conn.commit()
+        print("✅ Added duration column for video length tracking")
+
+    # Add performance indexes
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_movies_verified ON movies(verified)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_movies_age_restricted ON movies(age_restricted)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_movies_url ON movies(url)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_movies_video_id ON movies(video_id)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_cache_movie_id ON movie_info_cache(movie_id)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_cache_genre ON movie_info_cache(genre)')
+    conn.commit()
+    print("✅ Database indexes created for performance")
+
     conn.close()
 
 # Initialize database if it doesn't exist
@@ -210,17 +323,7 @@ swagger = Swagger(app, config=swagger_config, template=swagger_template)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['WTF_CSRF_ENABLED'] = True
 
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-login_manager.login_message = 'Please log in to access this page.'
-login_manager.login_message_category = 'info'
-
-@login_manager.user_loader
-def load_user(user_id):
-    """Load user for Flask-Login"""
-    return User.get(user_id)
+# Flask-Login removed - app is now auth-free and global
 
 # Database connection
 def get_db_connection():
@@ -228,39 +331,35 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# Fetch all movies (user-scoped)
+# Fetch all movies (global)
 def fetch_all_movies(user_id=None):
     conn = get_db_connection()
-    if user_id:
-        movies = conn.execute('SELECT * FROM movies WHERE user_id = ?', (user_id,)).fetchall()
-    else:
-        # For admin or when no user specified, get all movies
-        movies = conn.execute('SELECT * FROM movies').fetchall()
+    # Always get all movies - no user filtering
+    movies = conn.execute('SELECT * FROM movies').fetchall()
     conn.close()
     return [dict(movie) for movie in movies]
 
-# Add a new movie (user-scoped)
-def add_movie(title, url, verified=False, user_id=None):
+# Add a new movie (global)
+def add_movie(title, url, verified=False, user_id=None, duration=None):
     conn = get_db_connection()
     cur = conn.cursor()
     last_verified = datetime.now().isoformat() if verified else None
-    cur.execute('INSERT INTO movies (title, url, verified, last_verified, user_id) VALUES (?, ?, ?, ?, ?)', 
-                (title, url, int(verified), last_verified, user_id))
+    video_id = extract_youtube_video_id(url)
+    cur.execute('INSERT INTO movies (title, url, verified, last_verified, user_id, video_id, duration) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (title, url, int(verified), last_verified, None, video_id, duration))
     conn.commit()
     movie_id = cur.lastrowid
     conn.close()
     return movie_id
 
 # Update a movie
-def update_movie(movie_id, title, url, verified, user_id=None):
+def update_movie(movie_id, title, url, verified, user_id=None, duration=None):
     conn = get_db_connection()
     last_verified = datetime.now().isoformat() if verified else None
-    if user_id:
-        conn.execute('UPDATE movies SET title = ?, url = ?, verified = ?, last_verified = ? WHERE id = ? AND user_id = ?', 
-                     (title, url, int(verified), last_verified, movie_id, user_id))
-    else:
-        conn.execute('UPDATE movies SET title = ?, url = ?, verified = ?, last_verified = ? WHERE id = ?', 
-                     (title, url, int(verified), last_verified, movie_id))
+    video_id = extract_youtube_video_id(url)
+    # Always update globally - no user filtering
+    conn.execute('UPDATE movies SET title = ?, url = ?, verified = ?, last_verified = ?, video_id = ?, duration = ? WHERE id = ?',
+                 (title, url, int(verified), last_verified, video_id, duration, movie_id))
     conn.commit()
     conn.close()
 
@@ -364,10 +463,8 @@ def update_age_restriction_status(movie_id, is_age_restricted):
 # Delete a movie
 def delete_movie(movie_id, user_id=None):
     conn = get_db_connection()
-    if user_id:
-        conn.execute('DELETE FROM movies WHERE id = ? AND user_id = ?', (movie_id, user_id))
-    else:
-        conn.execute('DELETE FROM movies WHERE id = ?', (movie_id,))
+    # Always delete globally - no user filtering
+    conn.execute('DELETE FROM movies WHERE id = ?', (movie_id,))
     conn.commit()
     conn.close()
 
@@ -681,6 +778,50 @@ def test_urls_background():
     conn.commit()
     conn.close()
 
+# YouTube Duration Extraction
+def extract_youtube_duration(url, timeout=10):
+    """
+    Extract video duration from YouTube URL by scraping the video page
+    Returns: duration string (e.g., "1:32:45") or None if extraction fails
+    """
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+
+        response = requests.get(url, headers=headers, timeout=timeout)
+
+        if response.status_code != 200:
+            return None
+
+        html = response.text
+
+        # Try to extract duration from various JSON patterns in the page
+        duration_patterns = [
+            r'"lengthSeconds":"(\d+)"',
+            r'"length":"(\d+)"',
+            r'approxDurationMs":"(\d+)"'
+        ]
+
+        for pattern in duration_patterns:
+            match = re.search(pattern, html)
+            if match:
+                seconds = int(match.group(1))
+                # Convert seconds to HH:MM:SS or MM:SS format
+                hours = seconds // 3600
+                minutes = (seconds % 3600) // 60
+                secs = seconds % 60
+
+                if hours > 0:
+                    return f"{hours}:{minutes:02d}:{secs:02d}"
+                else:
+                    return f"{minutes}:{secs:02d}"
+
+        return None
+    except Exception as e:
+        print(f"⚠️ Error extracting duration from {url}: {e}")
+        return None
+
 # YouTube Search Functions
 def search_youtube_videos(query, max_results=10, timeout=10):
     """
@@ -866,7 +1007,6 @@ def search_youtube_with_api(query, max_results=10):
 # YouTube Search and Import API Endpoints
 
 @app.route('/api/search-youtube', methods=['POST'])
-@login_required
 @swag_from({
     'tags': ['movies'],
     'summary': 'Search for movies on YouTube',
@@ -990,7 +1130,6 @@ def search_youtube_endpoint():
         }), 500
 
 @app.route('/api/import-from-search', methods=['POST'])
-@login_required
 @swag_from({
     'tags': ['movies'],
     'summary': 'Import a movie from YouTube search results',
@@ -1134,26 +1273,56 @@ def import_from_search():
             print(f"🔞 Age restriction detected: {age_message}")
         else:
             print(f"👍 No age restrictions: {age_message}")
-        
-        # Check for duplicates (within user's movies)
+
+        # Extract duration
+        print("🔍 Extracting video duration...")
+        duration = extract_youtube_duration(url)
+        if duration:
+            print(f"⏱️ Duration extracted: {duration}")
+        else:
+            print("⚠️ Could not extract duration")
+            warnings.append("Could not extract video duration")
+
+        # Check for duplicates using normalized video ID (global check)
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, title FROM movies WHERE url = ? AND user_id = ?", (url, current_user.id))
+        video_id = extract_youtube_video_id(url)
+
+        # Check by video_id first (catches different URL formats of same video)
+        if video_id:
+            cursor.execute("SELECT id, title, url FROM movies WHERE video_id = ?", (video_id,))
+            existing = cursor.fetchone()
+            if existing:
+                conn.close()
+                return jsonify({
+                    'success': False,
+                    'error': 'Movie with this video already exists in the library (different URL format)',
+                    'details': {
+                        'existing_id': existing[0],
+                        'existing_title': existing[1],
+                        'existing_url': existing[2],
+                        'new_url': url,
+                        'video_id': video_id
+                    }
+                }), 400
+
+        # Fallback: Check by exact URL match (for non-YouTube URLs or extraction failures)
+        cursor.execute("SELECT id, title FROM movies WHERE url = ?", (url,))
         existing = cursor.fetchone()
         if existing:
             conn.close()
             return jsonify({
                 'success': False,
-                'error': 'Movie with this URL already exists in your library',
+                'error': 'Movie with this URL already exists in the library',
                 'details': {
                     'existing_id': existing[0],
                     'existing_title': existing[1],
                     'url': url
                 }
             }), 400
-        
+
         # Add movie to database
-        movie_id = add_movie(final_title, url, verified, current_user.id)
+        movie_id = add_movie(final_title, url, verified, None, duration)
         
         # Update age restriction info
         cursor = conn.cursor()
@@ -1194,6 +1363,7 @@ def import_from_search():
             'extracted_title': extracted_title,
             'verified': verified,
             'age_restricted': is_age_restricted,
+            'duration': duration,
             'message': 'Movie imported successfully!' + (' OMDb metadata is being fetched in background.' if fetch_metadata else ''),
             'warnings': warnings
         })
@@ -1206,132 +1376,8 @@ def import_from_search():
             'details': {'exception_type': type(e).__name__}
         }), 500
 
-# Missing Flask App Routes - need to be added after the existing code
-
-# Authentication Routes
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """User login"""
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.verify_password(form.username.data, form.password.data)
-        if user:
-            login_user(user, remember=form.remember_me.data)
-            user.update_last_login()
-            flash(f'Welcome back, {user.display_name}!', 'success')
-            
-            # Redirect to next page or index
-            next_page = request.args.get('next')
-            if not next_page or urlparse(next_page).netloc != '':
-                next_page = url_for('index')
-            return redirect(next_page)
-        else:
-            flash('Invalid username or password', 'error')
-    
-    return render_template('auth/login.html', title='Sign In', form=form)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    """User registration"""
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user, message = User.create(
-            username=form.username.data,
-            email=form.email.data,
-            password=form.password.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data
-        )
-        
-        if user:
-            flash('Registration successful! Please log in.', 'success')
-            return redirect(url_for('login'))
-        else:
-            flash(f'Registration failed: {message}', 'error')
-    
-    return render_template('auth/register.html', title='Register', form=form)
-
-@app.route('/logout')
-def logout():
-    """User logout"""
-    logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
-
-@app.route('/profile')
-@login_required
-def profile():
-    """User profile page"""
-    return render_template('auth/profile.html', title='Profile')
-
-@app.route('/profile/edit', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    """Edit user profile"""
-    form = ProfileForm(current_user.email)
-    if form.validate_on_submit():
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE users 
-            SET first_name = ?, last_name = ?, email = ?
-            WHERE id = ?
-        ''', (form.first_name.data, form.last_name.data, form.email.data, current_user.id))
-        conn.commit()
-        conn.close()
-        
-        flash('Profile updated successfully!', 'success')
-        return redirect(url_for('profile'))
-    elif request.method == 'GET':
-        form.first_name.data = current_user.first_name
-        form.last_name.data = current_user.last_name
-        form.email.data = current_user.email
-    
-    return render_template('auth/edit_profile.html', title='Edit Profile', form=form)
-
-@app.route('/profile/change-password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    """Change user password"""
-    form = ChangePasswordForm()
-    if form.validate_on_submit():
-        # Get current password hash from database
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT password_hash FROM users WHERE id = ?', (current_user.id,))
-        user_data = cursor.fetchone()
-        
-        if not user_data:
-            flash('User not found', 'error')
-            conn.close()
-            return redirect(url_for('profile'))
-        
-        # Verify current password
-        if not check_password_hash(user_data['password_hash'], form.current_password.data):
-            flash('Current password is incorrect', 'error')
-            conn.close()
-        else:
-            # Update password
-            new_hash = generate_password_hash(form.new_password.data)
-            cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', 
-                         (new_hash, current_user.id))
-            conn.commit()
-            conn.close()
-            
-            flash('Password changed successfully!', 'success')
-            return redirect(url_for('profile'))
-    
-    return render_template('auth/change_password.html', title='Change Password', form=form)
-
-# Routes
+# Main Routes (auth routes removed - app is now auth-free)
 @app.route('/')
-@login_required
 def index():
     return render_template('index.html')
 
@@ -1341,7 +1387,6 @@ def docs():
     return redirect('/api/docs/')
 
 @app.route('/api/movies', methods=['GET'])
-@login_required
 def get_movies():
     """Get all movies with pagination
     ---
@@ -1402,15 +1447,15 @@ def get_movies():
     
     conn = get_db_connection()
     if limit:
-        movies = conn.execute('SELECT * FROM movies WHERE user_id = ? ORDER BY id DESC LIMIT ? OFFSET ?', 
-                             (current_user.id, limit, offset)).fetchall()
+        movies = conn.execute('SELECT * FROM movies ORDER BY id DESC LIMIT ? OFFSET ?',
+                             (limit, offset)).fetchall()
     else:
         # When no limit is specified, use a very large limit to get all remaining records
-        movies = conn.execute('SELECT * FROM movies WHERE user_id = ? ORDER BY id DESC LIMIT -1 OFFSET ?', 
-                             (current_user.id, offset)).fetchall()
-    
+        movies = conn.execute('SELECT * FROM movies ORDER BY id DESC LIMIT -1 OFFSET ?',
+                             (offset,)).fetchall()
+
     # Get total count for pagination info
-    total_count = conn.execute('SELECT COUNT(*) FROM movies WHERE user_id = ?', (current_user.id,)).fetchone()[0]
+    total_count = conn.execute('SELECT COUNT(*) FROM movies').fetchone()[0]
     conn.close()
     
     return jsonify({
@@ -1420,7 +1465,6 @@ def get_movies():
     })
 
 @app.route('/api/movies', methods=['POST'])
-@login_required
 def create_movie():
     """Add a new movie
     ---
@@ -1483,7 +1527,7 @@ def create_movie():
         return jsonify({'success': False, 'error': 'Missing title or url'}), 400
     
     # Create the movie first
-    movie_id = add_movie(title, url, verified, current_user.id)
+    movie_id = add_movie(title, url, verified, None)
     
     # Immediately fetch OMDb info and check age restrictions in background
     def fetch_movie_data_background():
@@ -1529,7 +1573,6 @@ def create_movie():
     })
 
 @app.route('/api/movies/<int:movie_id>', methods=['PUT'])
-@login_required
 def edit_movie(movie_id):
     """Update an existing movie
     ---
@@ -1607,22 +1650,22 @@ def edit_movie(movie_id):
     if not title or not url:
         return jsonify({'success': False, 'error': 'Missing title or url'}), 400
     
-    # Get the current movie data to check what changed and verify ownership
+    # Get the current movie data to check what changed
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT title, url FROM movies WHERE id = ? AND user_id = ?", (movie_id, current_user.id))
+    cursor.execute("SELECT title, url FROM movies WHERE id = ?", (movie_id,))
     current_movie = cursor.fetchone()
     conn.close()
-    
+
     if not current_movie:
         return jsonify({'success': False, 'error': 'Movie not found'}), 404
-    
+
     current_title, current_url = current_movie
     title_changed = current_title != title
     url_changed = current_url != url
-    
+
     # Update the movie
-    update_movie(movie_id, title, url, verified, current_user.id)
+    update_movie(movie_id, title, url, verified, None)
     
     # If title or URL changed, refresh all associated data in background
     if title_changed or url_changed:
@@ -1695,7 +1738,6 @@ def edit_movie(movie_id):
         })
 
 @app.route('/api/movies/<int:movie_id>', methods=['DELETE'])
-@login_required
 def remove_movie(movie_id):
     """Delete a movie
     ---
@@ -1720,16 +1762,15 @@ def remove_movie(movie_id):
               type: string
               example: "Movie 1 deleted"
     """
-    delete_movie(movie_id, current_user.id)
+    delete_movie(movie_id, None)
     return jsonify({'success': True, 'message': f'Movie {movie_id} deleted'})
 
 @app.route('/random')
-@login_required
 def random_movie_redirect():
     """Redirect to a random movie detail page"""
     try:
         verified_only = request.args.get('verified_only', 'false').lower() == 'true'
-        movies = fetch_all_movies(current_user.id)
+        movies = fetch_all_movies(None)
         if verified_only:
             movies = [m for m in movies if m['verified']]
         if not movies:
@@ -1744,9 +1785,8 @@ def random_movie_redirect():
         return redirect(url_for('index', error='Error selecting random movie'))
 
 @app.route('/api/random-movie')
-@login_required
 def random_movie():
-    """Get a random movie
+    """Get a random movie with optional filters
     ---
     tags:
       - movies
@@ -1756,6 +1796,37 @@ def random_movie():
         type: string
         required: false
         description: If 'true', only return verified movies
+        enum: ['true', 'false']
+        default: 'false'
+      - name: genre
+        in: query
+        type: string
+        required: false
+        description: Filter by genre (case-insensitive)
+        example: "Action"
+      - name: year_min
+        in: query
+        type: integer
+        required: false
+        description: Minimum year (inclusive)
+        example: 2000
+      - name: year_max
+        in: query
+        type: integer
+        required: false
+        description: Maximum year (inclusive)
+        example: 2020
+      - name: min_rating
+        in: query
+        type: number
+        required: false
+        description: Minimum IMDb rating (e.g., 7.0)
+        example: 7.0
+      - name: exclude_age_restricted
+        in: query
+        type: string
+        required: false
+        description: If 'true', exclude age-restricted content
         enum: ['true', 'false']
         default: 'false'
     responses:
@@ -1779,6 +1850,9 @@ def random_movie():
               type: integer
               description: Movie ID
               example: 42
+            filters_applied:
+              type: object
+              description: Summary of filters applied
       404:
         description: No movies available
         schema:
@@ -1789,19 +1863,173 @@ def random_movie():
               example: false
             error:
               type: string
-              example: "No movies available"
+              example: "No movies available matching the filters"
     """
+    # Parse filter parameters
     verified_only = request.args.get('verified_only', 'false').lower() == 'true'
-    movies = fetch_all_movies(current_user.id)
+    genre_filter = request.args.get('genre', '').strip()
+    year_min = request.args.get('year_min', type=int)
+    year_max = request.args.get('year_max', type=int)
+    min_rating = request.args.get('min_rating', type=float)
+    exclude_age_restricted = request.args.get('exclude_age_restricted', 'false').lower() == 'true'
+
+    # Get all movies
+    movies = fetch_all_movies(None)
+
+    # Apply verified filter
     if verified_only:
         movies = [m for m in movies if m['verified']]
+
+    # Apply age restriction filter
+    if exclude_age_restricted:
+        movies = [m for m in movies if not m.get('age_restricted', False)]
+
+    # For genre/year/rating filters, need to join with cache table
+    if genre_filter or year_min or year_max or min_rating:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Build SQL query with filters
+        sql = '''
+            SELECT m.*, c.genre, c.year, c.imdb_rating
+            FROM movies m
+            LEFT JOIN movie_info_cache c ON m.id = c.movie_id
+            WHERE 1=1
+        '''
+        params = []
+
+        if verified_only:
+            sql += ' AND m.verified = 1'
+
+        if exclude_age_restricted:
+            sql += ' AND (m.age_restricted = 0 OR m.age_restricted IS NULL)'
+
+        if genre_filter:
+            sql += ' AND c.genre LIKE ?'
+            params.append(f'%{genre_filter}%')
+
+        if year_min:
+            sql += ' AND CAST(c.year AS INTEGER) >= ?'
+            params.append(year_min)
+
+        if year_max:
+            sql += ' AND CAST(c.year AS INTEGER) <= ?'
+            params.append(year_max)
+
+        if min_rating:
+            sql += ' AND CAST(c.imdb_rating AS REAL) >= ?'
+            params.append(min_rating)
+
+        cursor.execute(sql, params)
+        movies = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
     if not movies:
-        return jsonify({'success': False, 'error': 'No movies available'}), 404
+        return jsonify({
+            'success': False,
+            'error': 'No movies available matching the filters'
+        }), 404
+
     movie = random.choice(movies)
-    return jsonify({'success': True, 'title': movie['title'], 'url': movie['url'], 'id': movie['id']})
+
+    # Build filters applied summary
+    filters_applied = {
+        'verified_only': verified_only,
+        'exclude_age_restricted': exclude_age_restricted
+    }
+    if genre_filter:
+        filters_applied['genre'] = genre_filter
+    if year_min:
+        filters_applied['year_min'] = year_min
+    if year_max:
+        filters_applied['year_max'] = year_max
+    if min_rating:
+        filters_applied['min_rating'] = min_rating
+
+    return jsonify({
+        'success': True,
+        'title': movie['title'],
+        'url': movie['url'],
+        'id': movie['id'],
+        'filters_applied': filters_applied
+    })
+
+@app.route('/api/export/csv')
+def export_movies_csv():
+    """Export all movies to CSV format
+    ---
+    tags:
+      - utility
+    parameters:
+      - name: include_metadata
+        in: query
+        type: string
+        required: false
+        description: If 'true', include OMDb metadata in export
+        enum: ['true', 'false']
+        default: 'false'
+    responses:
+      200:
+        description: CSV file download
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: binary
+    """
+    include_metadata = request.args.get('include_metadata', 'false').lower() == 'true'
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if include_metadata:
+        # Join with cache table to get metadata
+        cursor.execute('''
+            SELECT
+                m.id, m.title, m.url, m.duration, m.verified, m.age_restricted,
+                c.year, c.genre, c.imdb_rating, c.runtime, c.director, c.actors
+            FROM movies m
+            LEFT JOIN movie_info_cache c ON m.id = c.movie_id
+            ORDER BY m.id
+        ''')
+        columns = ['ID', 'Title', 'URL', 'Duration', 'Verified', 'Age Restricted',
+                   'Year', 'Genre', 'IMDb Rating', 'Runtime', 'Director', 'Actors']
+    else:
+        # Basic export
+        cursor.execute('SELECT id, title, url, duration, verified, age_restricted FROM movies ORDER BY id')
+        columns = ['ID', 'Title', 'URL', 'Duration', 'Verified', 'Age Restricted']
+
+    movies = cursor.fetchall()
+    conn.close()
+
+    # Create CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write header
+    writer.writerow(columns)
+
+    # Write data rows
+    for movie in movies:
+        row = []
+        for value in movie:
+            if value is None:
+                row.append('')
+            elif isinstance(value, bool) or isinstance(value, int):
+                row.append('Yes' if value else 'No')
+            else:
+                row.append(value)
+        writer.writerow(row)
+
+    # Create response
+    output.seek(0)
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename=stupidmoviepicker_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+
+    return response
 
 @app.route('/api/movie-info/<int:movie_id>')
-@login_required
 def get_movie_info(movie_id):
     """Get detailed movie information from OMDb API
     ---
@@ -1878,7 +2106,7 @@ def get_movie_info(movie_id):
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT title FROM movies WHERE id = ? AND user_id = ?", (movie_id, current_user.id))
+    cursor.execute("SELECT title FROM movies WHERE id = ?", (movie_id,))
     row = cursor.fetchone()
     conn.close()
     
@@ -2093,13 +2321,12 @@ def test_urls():
     return jsonify({'success': True, 'message': 'URL testing started'})
 
 @app.route("/movie/<int:movie_id>/verify", methods=['POST'])
-@login_required
 def verify_movie(movie_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Check if movie exists and belongs to current user
-    cursor.execute("SELECT id FROM movies WHERE id = ? AND user_id = ?", (movie_id, current_user.id))
+    # Check if movie exists
+    cursor.execute("SELECT id FROM movies WHERE id = ?", (movie_id,))
     if not cursor.fetchone():
         conn.close()
         return "Movie not found", 404
@@ -2115,12 +2342,11 @@ def verify_movie(movie_id):
     return redirect(url_for('movie_detail', movie_id=movie_id))
 
 @app.route("/movie/<int:movie_id>")
-@login_required
 def movie_detail(movie_id):
     conn = sqlite3.connect(get_db_path())
     cursor = conn.cursor()
-    cursor.execute("SELECT id, title, url, verified, last_verified FROM movies WHERE id = ? AND user_id = ?", 
-                   (movie_id, current_user.id))
+    cursor.execute("SELECT id, title, url, verified, last_verified FROM movies WHERE id = ?",
+                   (movie_id,))
     row = cursor.fetchone()
     conn.close()
     if not row:
@@ -2142,12 +2368,10 @@ def movie_detail(movie_id):
     return render_template("movie_detail.html", movie=movie, video_id=video_id)
 
 @app.route('/admin')
-@login_required
 def admin():
     return render_template('admin.html')
 
 @app.route('/api/admin/stats', methods=['GET'])
-@login_required  
 def get_admin_stats():
     """Get comprehensive database statistics
     ---
@@ -2213,42 +2437,34 @@ def get_admin_stats():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Get basic movie statistics (user-scoped)
+        # Get basic movie statistics (global)
         stats = {}
-        stats['total_movies'] = cursor.execute('SELECT COUNT(*) FROM movies WHERE user_id = ?', (current_user.id,)).fetchone()[0]
-        stats['verified_movies'] = cursor.execute('SELECT COUNT(*) FROM movies WHERE verified = 1 AND user_id = ?', (current_user.id,)).fetchone()[0]
+        stats['total_movies'] = cursor.execute('SELECT COUNT(*) FROM movies').fetchone()[0]
+        stats['verified_movies'] = cursor.execute('SELECT COUNT(*) FROM movies WHERE verified = 1').fetchone()[0]
         stats['unverified_movies'] = stats['total_movies'] - stats['verified_movies']
-        
+
         # Check if age_restricted column exists
         cursor.execute("PRAGMA table_info(movies)")
         columns = [col[1] for col in cursor.fetchall()]
         if "age_restricted" in columns:
-            stats['age_restricted_movies'] = cursor.execute('SELECT COUNT(*) FROM movies WHERE age_restricted = 1 AND user_id = ?', (current_user.id,)).fetchone()[0]
+            stats['age_restricted_movies'] = cursor.execute('SELECT COUNT(*) FROM movies WHERE age_restricted = 1').fetchone()[0]
         else:
             stats['age_restricted_movies'] = 0
-        
-        # Get cache statistics (for user's movies)
-        stats['cache_entries'] = cursor.execute('''
-            SELECT COUNT(*) FROM movie_info_cache c 
-            INNER JOIN movies m ON c.movie_id = m.id 
-            WHERE m.user_id = ?
-        ''', (current_user.id,)).fetchone()[0]
-        
-        # Get oldest cache entry (for user's movies)
-        oldest_cache = cursor.execute('''
-            SELECT MIN(c.cached_at) FROM movie_info_cache c 
-            INNER JOIN movies m ON c.movie_id = m.id 
-            WHERE c.cached_at IS NOT NULL AND m.user_id = ?
-        ''', (current_user.id,)).fetchone()[0]
+
+        # Get cache statistics (global)
+        stats['cache_entries'] = cursor.execute('SELECT COUNT(*) FROM movie_info_cache').fetchone()[0]
+
+        # Get oldest cache entry (global)
+        oldest_cache = cursor.execute('SELECT MIN(cached_at) FROM movie_info_cache WHERE cached_at IS NOT NULL').fetchone()[0]
         stats['oldest_cache'] = oldest_cache
-        
-        # Get last verification date (for user's movies)
-        last_verified = cursor.execute('SELECT MAX(last_verified) FROM movies WHERE last_verified IS NOT NULL AND user_id = ?', (current_user.id,)).fetchone()[0]
+
+        # Get last verification date (global)
+        last_verified = cursor.execute('SELECT MAX(last_verified) FROM movies WHERE last_verified IS NOT NULL').fetchone()[0]
         stats['last_verification'] = last_verified
-        
-        # Get last age check date (if column exists, for user's movies)
+
+        # Get last age check date (if column exists, global)
         if "age_checked_at" in columns:
-            last_age_check = cursor.execute('SELECT MAX(age_checked_at) FROM movies WHERE age_checked_at IS NOT NULL AND user_id = ?', (current_user.id,)).fetchone()[0]
+            last_age_check = cursor.execute('SELECT MAX(age_checked_at) FROM movies WHERE age_checked_at IS NOT NULL').fetchone()[0]
             stats['last_age_check'] = last_age_check
         else:
             stats['last_age_check'] = None
@@ -2430,17 +2646,14 @@ def check_age_restrictions():
     return jsonify({'success': True, 'message': 'Age restriction check started in background'})
 
 @app.route('/genres')
-@login_required
 def genres():
     return render_template('genres.html')
 
 @app.route('/genre/<genre_name>')
-@login_required
 def genre_detail(genre_name):
     return render_template('genre_detail.html', genre=genre_name)
 
 @app.route('/api/movies-by-genre/<genre_name>')
-@login_required
 def movies_by_genre(genre_name):
     """Get movies by genre from cached OMDb data
     ---
@@ -2528,10 +2741,10 @@ def movies_by_genre(genre_name):
                    c.genre, c.year, c.imdb_rating, c.poster
             FROM movies m
             JOIN movie_info_cache c ON m.id = c.movie_id
-            WHERE c.genre LIKE ? AND m.user_id = ?
+            WHERE c.genre LIKE ?
             ORDER BY {order_clause}
         '''
-        cursor.execute(query, (f'%{genre_name}%', current_user.id))
+        cursor.execute(query, (f'%{genre_name}%',))
         rows = cursor.fetchall()
         conn.close()
         movies = []
@@ -2560,7 +2773,6 @@ def movies_by_genre(genre_name):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/movies-with-genres')
-@login_required
 def movies_with_genres():
     """Get all movies with their cached genre information
     ---
@@ -2609,9 +2821,8 @@ def movies_with_genres():
                    c.genre, c.year, c.imdb_rating, c.poster
             FROM movies m
             LEFT JOIN movie_info_cache c ON m.id = c.movie_id
-            WHERE m.user_id = ?
             ORDER BY m.id DESC
-        ''', (current_user.id,))
+        ''')
         
         rows = cursor.fetchall()
         conn.close()

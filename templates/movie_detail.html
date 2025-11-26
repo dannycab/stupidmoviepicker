@@ -157,19 +157,20 @@
     <div class="bg-gray-800 rounded-xl shadow-xl overflow-hidden">
       <!-- Movie Header with Thumbnail and Basic Info -->
       <div class="mobile-single-column grid lg:grid-cols-2 gap-6 p-6 mobile-card-padding">
-        <!-- Left: Video Thumbnail -->
+        <!-- Left: Video Thumbnail / Player -->
         <div class="space-y-4 mobile-space-y">
-          <div class="aspect-video w-full relative rounded-lg overflow-hidden group cursor-pointer" onclick="window.open('{{ movie.url }}', '_blank')">>
-            <img 
-              src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg" 
+          <!-- Thumbnail View (default) -->
+          <div id="thumbnailView" class="aspect-video w-full relative rounded-lg overflow-hidden group cursor-pointer" onclick="loadEmbeddedPlayer()">
+            <img
+              src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
               alt="{{ movie.title }} Thumbnail"
               class="w-full h-full object-cover"
               onerror="this.src='https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg'"
             >
-            
+
             <!-- Dark overlay on hover -->
             <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all duration-200"></div>
-            
+
             <!-- Play Button -->
             <div class="absolute inset-0 flex items-center justify-center">
               <div class="bg-red-600 rounded-full p-4 group-hover:bg-red-700 transition-all duration-200 shadow-lg group-hover:scale-110">
@@ -178,14 +179,14 @@
                 </svg>
               </div>
             </div>
-            
+
             <!-- YouTube Logo -->
             <div class="absolute top-4 right-4">
               <svg class="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
             </div>
-            
+
             <!-- Verification Status Overlay -->
             <div class="absolute bottom-4 left-4">
               {% if movie.verified %}
@@ -198,16 +199,43 @@
                 </span>
               {% endif %}
             </div>
+
+            <!-- Click to Play Text -->
+            <div class="absolute bottom-4 right-4">
+              <span class="mobile-small-text inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-black bg-opacity-70 text-white">
+                🎬 Click to play embedded
+              </span>
+            </div>
+          </div>
+
+          <!-- Embedded Player (hidden by default) -->
+          <div id="playerView" class="aspect-video w-full rounded-lg overflow-hidden hidden">
+            <iframe
+              id="youtubePlayer"
+              class="w-full h-full"
+              src=""
+              title="{{ movie.title }}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
           </div>
           
           <!-- Action Buttons -->
           <div class="flex flex-col gap-3">
+            <!-- Toggle Player Button -->
+            <button id="togglePlayerBtn" onclick="togglePlayer()" class="btn btn-purple flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span id="togglePlayerText">▶️ Play Embedded</span>
+            </button>
             <!-- Watch Button -->
             <a href="{{ movie.url }}" target="_blank" class="btn btn-red flex items-center justify-center">
               <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              Watch on YouTube
+              Open on YouTube
             </a>
             <!-- Delete Button -->
             <button onclick="deleteMovie()" class="btn btn-gray flex items-center justify-center">
@@ -275,6 +303,35 @@
   </div>
   
   <script>
+    // Embedded player functionality
+    let playerLoaded = false;
+
+    function loadEmbeddedPlayer() {
+      if (!playerLoaded) {
+        document.getElementById('youtubePlayer').src = 'https://www.youtube.com/embed/{{ video_id }}?autoplay=1';
+        playerLoaded = true;
+      }
+      document.getElementById('thumbnailView').classList.add('hidden');
+      document.getElementById('playerView').classList.remove('hidden');
+      document.getElementById('togglePlayerText').textContent = '🖼️ Show Thumbnail';
+    }
+
+    function togglePlayer() {
+      const thumbnailView = document.getElementById('thumbnailView');
+      const playerView = document.getElementById('playerView');
+      const toggleText = document.getElementById('togglePlayerText');
+
+      if (thumbnailView.classList.contains('hidden')) {
+        // Currently showing player, switch to thumbnail
+        thumbnailView.classList.remove('hidden');
+        playerView.classList.add('hidden');
+        toggleText.textContent = '▶️ Play Embedded';
+      } else {
+        // Currently showing thumbnail, switch to player
+        loadEmbeddedPlayer();
+      }
+    }
+
     // Title editing functionality
     let originalTitle = "{{ movie.title }}";
     

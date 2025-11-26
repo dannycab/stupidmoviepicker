@@ -1,0 +1,28 @@
+{
+  "name": "stupidMoviePicker v0.1",
+  "short_name": "stupidMP",
+  "description": "No login. No accounts. Just stupid global movie picking.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#1f2937",
+  "orientation": "portrait-primary",
+  "icons": [],
+  "categories": ["entertainment", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Random Movie",
+      "short_name": "Random",
+      "description": "Pick a random movie",
+      "url": "/random",
+      "icons": []
+    },
+    {
+      "name": "Browse Genres",
+      "short_name": "Genres",
+      "description": "Browse movies by genre",
+      "url": "/genres",
+      "icons": []
+    }
+  ]
+}
